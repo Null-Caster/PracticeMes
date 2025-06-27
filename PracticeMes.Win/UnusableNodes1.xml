@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <NavigationItems Id="NavigationItems">
+    <Items Id="Items">
+      <Item Id="기준 정보">
+        <Items Id="Items">
+          <Item Id="품목 정보" ImageName="BO_Folder" Caption="픔목 정보" Visible="True" ViewId="" Removed="True" />
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
+</Application>

@@ -2,23 +2,50 @@
 <Application Logo="ExpressAppLogo">
   <NavigationItems NavigationStyle="Accordion" DefaultChildItemsDisplayStyle="List">
     <Items>
-      <Item Id="공통 정보" Removed="True" />
+      <Item Id="공통 정보" Visible="False" />
       <Item Id="기준 정보" Caption="기준 정보" ImageName="BO_Folder" IsNewNode="True">
         <Items IsNewNode="True">
-          <Item Id="공통 정보" ImageName="BO_Folder" Caption="공통 정보" IsNewNode="True">
+          <Item Id="공통 정보" ImageName="BO_Folder" Caption="공통 정보" Index="0" IsNewNode="True">
             <Items IsNewNode="True">
-              <Item Id="사업장 등록" ImageName="Actions_Home" Caption="사업장 등록" ViewId="Company_ListView" Index="0" IsNewNode="True" />
-              <Item Id="부서 등록" Caption="부서 등록" ImageName="BO_Department" ViewId="Department_ListView" Index="1" IsNewNode="True" />
-              <Item Id="직원 등록" Caption="직원 등록" ImageName="BO_Employee" ViewId="Employee_ListView" Index="2" IsNewNode="True" />
-              <Item Id="거래처" Caption="거래처" ImageName="BO_Customer" ViewId="BusinessPartner_ListView" Index="3" IsNewNode="True" />
-              <Item Id="공장 등록" Caption="공장 등록" ImageName="BO_Organization" ViewId="Factory_ListView" Index="4" IsNewNode="True" />
-              <Item Id="창고 등록" Caption="창고 등록" ViewId="WareHouse_ListView" Index="5" IsNewNode="True" />
-              <Item Id="단위 등록" Caption="단위 등록" ImageName="WeightedPies" ViewId="Unit_ListView" Index="6" IsNewNode="True" />
-              <Item Id="코드 등록" Caption="코드 등록" ViewId="UniversalMajorCode_ListView" ImageName="ModelEditor_KeyProperty" Index="7" IsNewNode="True" />
+              <Item Id="사업장 등록" ImageName="Actions_Home" Caption="사업장 등록" Index="0" ViewId="Company_ListView" IsNewNode="True" />
+              <Item Id="부서 등록" Caption="부서 등록" ImageName="BO_Department" Index="1" ViewId="Department_ListView" IsNewNode="True" />
+              <Item Id="직원 등록" Caption="직원 등록" ImageName="BO_Employee" Index="2" ViewId="Employee_ListView" IsNewNode="True" />
+              <Item Id="거래처" Caption="거래처" ImageName="BO_Customer" Index="3" ViewId="BusinessPartner_ListView" IsNewNode="True" />
+              <Item Id="공장 등록" Caption="공장 등록" ImageName="BO_Organization" Index="4" ViewId="Factory_ListView" IsNewNode="True" />
+              <Item Id="창고 등록" Caption="창고 등록" Index="5" ViewId="WareHouse_ListView" IsNewNode="True" />
+              <Item Id="단위 등록" Caption="단위 등록" ImageName="WeightedPies" Index="6" ViewId="Unit_ListView" IsNewNode="True" />
+              <Item Id="코드 등록" Caption="코드 등록" ImageName="ModelEditor_KeyProperty" Index="7" ViewId="UniversalMajorCode_ListView" IsNewNode="True" />
+            </Items>
+          </Item>
+          <Item Id="픔목 정보" Caption="품목 정보" Index="1" IsNewNode="True">
+            <Items IsNewNode="True">
+              <Item Id="품목 계정 등록" ImageName="Action_ModelDifferences_Create" Caption="품목 계정 등록" ViewId="ItemAccount_ListView" IsNewNode="True" />
+              <Item Id="품목 그룹 등록" ImageName="Action_ModelDifferences_Create" Caption="품목 그룹 등록" ViewId="ItemGroup_ListView" IsNewNode="True" />
+              <Item Id="품목 등록" ImageName="Actions_Rating" Caption="품목 등록" ViewId="Item_ListView" IsNewNode="True" />
+            </Items>
+          </Item>
+          <Item Id="생산 정보" ImageName="BO_Folder" Caption="생산 정보" Index="2" Visible="True" IsNewNode="True">
+            <Items IsNewNode="True">
+              <Item Id="작업 공정 등록" ImageName="ModelEditor_Actions_ActionDesign" Caption="작업 공정 등록" ViewId="WorkProcess_ListView" IsNewNode="True" />
+              <Item Id="작업 라인 등록" Caption="작업 라인 등록" ImageName="ModelEditor_Actions_ActionToContainerMapping" ViewId="WorkLine_ListView" IsNewNode="True" />
+              <Item Id="작업장 등록" Caption="작업장 등록" ImageName="ModelEditor_Actions" ViewId="WorkCenter_ListView" IsNewNode="True" />
+            </Items>
+          </Item>
+          <Item Id="품질 정보" QuickAccessItem="False" ImageName="BO_Folder" Caption="품질 정보" Visible="True" Index="3" IsNewNode="True">
+            <Items IsNewNode="True">
+              <Item Id="불량 원인 등록" Caption="불량 원인 등록" ImageName="Security_WarningCircled1" ViewId="DefectCause_ListView" IsNewNode="True" />
+              <Item Id="불량 유형 등록" Caption="불량 유형 등록" ImageName="Security_WarningCircled2" ViewId="DefectType_ListView" IsNewNode="True" />
             </Items>
           </Item>
         </Items>
       </Item>
+      <Item Id="생산 정보" Visible="False" />
+      <Item Id="품목 정보" Visible="False" />
+      <Item Id="품질 정보" Visible="False" />
+      <Item Id="Default" Visible="False" />
+      <Item Id="KPI" Visible="False" />
+      <Item Id="Reports" Visible="False" />
+      <Item Id="State Machine" Visible="False" />
     </Items>
   </NavigationItems>
   <Options UIType="TabbedMDI" FormStyle="Ribbon" />

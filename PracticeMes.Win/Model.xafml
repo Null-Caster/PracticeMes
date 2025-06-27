@@ -2,8 +2,7 @@
 <Application Logo="ExpressAppLogo">
   <NavigationItems NavigationStyle="Accordion" DefaultChildItemsDisplayStyle="List">
     <Items>
-      <Item Id="공통 정보" Visible="False" />
-      <Item Id="기준 정보" Caption="기준 정보" ImageName="BO_Folder" IsNewNode="True">
+      <Item Id="기준 정보" Caption="기준 정보" ImageName="BO_Folder" Index="0" IsNewNode="True">
         <Items IsNewNode="True">
           <Item Id="공통 정보" ImageName="BO_Folder" Caption="공통 정보" Index="0" IsNewNode="True">
             <Items IsNewNode="True">
@@ -12,7 +11,7 @@
               <Item Id="직원 등록" Caption="직원 등록" ImageName="BO_Employee" Index="2" ViewId="Employee_ListView" IsNewNode="True" />
               <Item Id="거래처" Caption="거래처" ImageName="BO_Customer" Index="3" ViewId="BusinessPartner_ListView" IsNewNode="True" />
               <Item Id="공장 등록" Caption="공장 등록" ImageName="BO_Organization" Index="4" ViewId="Factory_ListView" IsNewNode="True" />
-              <Item Id="창고 등록" Caption="창고 등록" Index="5" ViewId="WareHouse_ListView" IsNewNode="True" />
+              <Item Id="창고 등록" Caption="창고 등록" Index="5" ImageName="Products" ViewId="WareHouse_ListView" IsNewNode="True" />
               <Item Id="단위 등록" Caption="단위 등록" ImageName="WeightedPies" Index="6" ViewId="Unit_ListView" IsNewNode="True" />
               <Item Id="코드 등록" Caption="코드 등록" ImageName="ModelEditor_KeyProperty" Index="7" ViewId="UniversalMajorCode_ListView" IsNewNode="True" />
             </Items>
@@ -39,7 +38,19 @@
           </Item>
         </Items>
       </Item>
+      <Item Id="구매 관리" ImageName="BO_Folder" Index="1">
+        <Items>
+          <Item Id="MasterPurchaseInput_ListView" ImageName="Business_Idea" />
+          <Item Id="MasterPurchaseOrder_ListView" ImageName="Business_Idea" />
+        </Items>
+      </Item>
+      <Item Id="공통 정보" Visible="False" Index="2" />
       <Item Id="생산 정보" Visible="False" />
+      <Item Id="영업 관리">
+        <Items>
+          <Item Id="MasterSalesOrder_ListView" ImageName="BO_Sale_Item" />
+        </Items>
+      </Item>
       <Item Id="품목 정보" Visible="False" />
       <Item Id="품질 정보" Visible="False" />
       <Item Id="Default" Visible="False" />

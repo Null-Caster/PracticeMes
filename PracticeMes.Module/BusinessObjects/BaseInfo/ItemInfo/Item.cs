@@ -65,6 +65,15 @@ public class Item : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.###")]
+    [XafDisplayName("단가"), ToolTip("단가")]
+    public double UnitPrice
+    {
+        get { return GetPropertyValue<double>(nameof(UnitPrice)); }
+        set { SetPropertyValue(nameof(UnitPrice), value); }
+    }
+
+    [VisibleInLookupListView(true)]
     [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'RegistType' AND IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]

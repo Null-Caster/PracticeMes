@@ -1,0 +1,194 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using DevExpress.Data.Filtering;
+using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Model;
+using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl;
+using DevExpress.Persistent.Validation;
+using DevExpress.Xpo;
+using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
+using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfol;
+using PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo;
+
+namespace PracticeMes.Module.BusinessObjects.Purchase;
+
+[DefaultClassOptions]
+[NavigationItem(false)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Bottom)]
+public class DetailPurchaseInput : BaseObject
+{
+    #region Properties
+    //[VisibleInLookupListView(true)]
+    //[ModelDefault("AllowEdit", "False")]
+    //[ModelDefault("LookupProperty", nameof(Lot.LotNumber))]
+    //[ModelDefault("LookupEditorMode", "AllItems")]
+    //[ModelDefault("LookupEditor.CreateNewItem", "False")]
+    //[RuleUniqueValue(CustomMessageTemplate = "Lot 번호가 중복되었습니다.")]
+    //[XafDisplayName("Lot 번호"), ToolTip("Lot 번호")]
+    //public Lot LotObject
+    //{
+    //    get { return GetPropertyValue<Lot>(nameof(LotObject)); }
+    //    set { SetPropertyValue(nameof(LotObject), value); }
+    //}
+
+    [VisibleInLookupListView(true)]
+    [ModelDefault("DisplayFormat", "yyyy/MM/dd")]
+    [XafDisplayName("입고일자"), ToolTip("입고일자")]
+    public DateTime InputDateTime
+    {
+        get { return GetPropertyValue<DateTime>(nameof(InputDateTime)); }
+        set { SetPropertyValue(nameof(InputDateTime), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [ImmediatePostData(true)]
+    [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
+    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [RuleRequiredField(CustomMessageTemplate = "품목코드을 입력하세요.")]
+    [XafDisplayName("품목코드"), ToolTip("품목코드")]
+    public Item ItemObject
+    {
+        get { return GetPropertyValue<Item>(nameof(ItemObject)); }
+        set { SetPropertyValue(nameof(ItemObject), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("품목명칭"), ToolTip("품목명칭")]
+    public string ItemName
+    {
+        get { return ItemObject?.ItemName; }
+    }
+
+    [VisibleInLookupListView(true)]
+    [DataSourceCriteria("IsEnabled == True")]
+    [ModelDefault("LookupProperty", nameof(Unit.UnitName))]
+    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [RuleRequiredField(CustomMessageTemplate = "입고단위 입력하세요.")]
+    [XafDisplayName("입고단위"), ToolTip("입고단위")]
+    public Unit UnitObject
+    {
+        get { return GetPropertyValue<Unit>(nameof(UnitObject)); }
+        set { SetPropertyValue(nameof(UnitObject), value); }
+    }
+
+    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'InspectionExecuteType' AND IsEnabled == True")]
+    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [RuleRequiredField(CustomMessageTemplate = "검사요청을 입력하세요.")]
+    [XafDisplayName("검사요청"), ToolTip("검사요청")]
+    public UniversalMinorCode InspectionExecuteType
+    {
+        get { return GetPropertyValue<UniversalMinorCode>(nameof(InspectionExecuteType)); }
+        set { SetPropertyValue(nameof(InspectionExecuteType), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [ImmediatePostData(true)]
+    [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.##")]
+    [XafDisplayName("단가"), ToolTip("단가")]
+    public double UnitPrice
+    {
+        get { return GetPropertyValue<double>(nameof(UnitPrice)); }
+        set { SetPropertyValue(nameof(UnitPrice), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("총 입고수량"), ToolTip("총 입고수량")]
+    public double TotalPurchaseInputQuantity
+    {
+        get
+        {
+            // 발주번호가 동일한 품목 입고자료 합계
+            var detailPurchaseInputQuantity = new XPCollection<DetailPurchaseInput>(this.Session)
+                .Where(x => x.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid && x.ItemObject?.Oid == this.ItemObject?.Oid)
+                .Sum(x => x.PurchaseInputQuantity);
+
+            return detailPurchaseInputQuantity;
+        }
+    }
+
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("입고 잔량"), ToolTip("입고 잔량")]
+    public double AvailPurchaseInputQuantity
+    {
+        get
+        {
+            // 발주번호 디테일의 품목 발주수량 합계
+            var detailPurchaseOrderQuantity = new XPCollection<DetailPurchaseOrder>(this.Session)
+                .Where(x => x.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid && x.ItemObject?.Oid == this.ItemObject?.Oid)
+                .Sum(x => x.PurchaseOrderQuantity);
+
+            // 발주번호가 동일한 품목 입고자료 합계
+            var detailPurchaseInputQuantity = new XPCollection<DetailPurchaseInput>(this.Session)
+                .Where(x => x.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid && x.ItemObject?.Oid == this.ItemObject?.Oid)
+                .Sum(x => x.PurchaseInputQuantity);
+
+            return detailPurchaseOrderQuantity - detailPurchaseInputQuantity;
+        }
+    }
+
+    [VisibleInLookupListView(true)]
+    [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.###")]
+    [RuleValueComparison(ValueComparisonType.GreaterThanOrEqual, 0, CustomMessageTemplate = "구매입고 수량은 0 이상이어야 합니다.")]
+    [XafDisplayName("구매입고 수량"), ToolTip("구매입고 수량")]
+    public double PurchaseInputQuantity
+    {
+        get { return GetPropertyValue<double>(nameof(PurchaseInputQuantity)); }
+        set { SetPropertyValue(nameof(PurchaseInputQuantity), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.##")]
+    [XafDisplayName("구매입고 금액"), ToolTip("구매입고 금액")]
+    public double PurchaseInputPrice
+    {
+        get { return GetPropertyValue<double>(nameof(PurchaseInputPrice)); }
+        set { SetPropertyValue(nameof(PurchaseInputPrice), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [ModelDefault("AllowEdit", "False")]
+    [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
+    [ModelDefault("EditMask", "yyyy/MM/dd HH:mm:ss")]
+    [XafDisplayName("생성 일시"), ToolTip("항목이 생성된 일시입니다.")]
+    public DateTime CreatedDateTime
+    {
+        get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
+        set { SetPropertyValue(nameof(CreatedDateTime), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("비고"), ToolTip("비고")]
+    public string Remark
+    {
+        get { return GetPropertyValue<string>(nameof(Remark)); }
+        set { SetPropertyValue(nameof(Remark), value); }
+    }
+
+    [Association(@"DetailPurchaseInputReferenceMasterPurchaseInput")]
+    public MasterPurchaseInput MasterPurchaseInputObject
+    {
+        get { return GetPropertyValue<MasterPurchaseInput>(nameof(MasterPurchaseInputObject)); }
+        set { SetPropertyValue(nameof(MasterPurchaseInputObject), value); }
+    }
+    #endregion
+
+    #region Constructors
+    public DetailPurchaseInput(Session session) : base(session) {}
+    #endregion
+
+    #region Methods
+    public override void AfterConstruction()
+    {
+        base.AfterConstruction();
+
+        InputDateTime = DateTime.Now;
+        CreatedDateTime = DateTime.Now;
+    }
+    #endregion
+}

@@ -11,6 +11,7 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
+using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfol;
 using PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo;
 
@@ -62,6 +63,15 @@ public class DetailSalesOrder : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [RuleValueComparison(ValueComparisonType.GreaterThanOrEqual, 0, CustomMessageTemplate = "계획수량은 0 이상이어야 합니다.")]
+    [XafDisplayName("계획수량"), ToolTip("계획수량")]
+    public double ProductPlanningQuantity
+    {
+        get { return GetPropertyValue<double>(nameof(ProductPlanningQuantity)); }
+        set { SetPropertyValue(nameof(ProductPlanningQuantity), value); }
+    }
+
+    [VisibleInLookupListView(true)]
     [ModelDefault("LookupProperty", nameof(Unit.UnitName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [XafDisplayName("수주단위"), ToolTip("수주단위")]
@@ -69,6 +79,18 @@ public class DetailSalesOrder : BaseObject
     {
         get { return GetPropertyValue<Unit>(nameof(SalesOrderUnit)); }
         set { SetPropertyValue(nameof(SalesOrderUnit), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'SalesOrderType' AND IsEnabled == True")]
+    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [RuleRequiredField(CustomMessageTemplate = "수주유형을 입력하세요.")]
+    [XafDisplayName("수주유형"), ToolTip("수주유형")]
+    public UniversalMinorCode SalesOrderType
+    {
+        get { return GetPropertyValue<UniversalMinorCode>(nameof(SalesOrderType)); }
+        set { SetPropertyValue(nameof(SalesOrderType), value); }
     }
 
     [VisibleInLookupListView(true)]

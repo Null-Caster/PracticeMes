@@ -46,4 +46,7 @@
     <PackageReference Include="DevExpress.Persistent.Base" Version="23.1.9" />
     <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="23.1.9" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="BusinessObjects\WorkInstruction\" />
+  </ItemGroup>
 </Project>

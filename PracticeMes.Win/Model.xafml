@@ -1,4 +1,32 @@
-﻿<Application Logo="ExpressAppLogo">
-	<Options UIType="TabbedMDI" FormStyle="Ribbon" />
-	<NavigationItems NavigationStyle="Accordion" DefaultChildItemsDisplayStyle="List"/>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application Logo="ExpressAppLogo">
+  <NavigationItems NavigationStyle="Accordion" DefaultChildItemsDisplayStyle="List">
+    <Items>
+      <Item Id="공통 정보" Removed="True" />
+      <Item Id="기준 정보" Caption="기준 정보" ImageName="BO_Folder" IsNewNode="True">
+        <Items IsNewNode="True">
+          <Item Id="공통 정보" ImageName="BO_Folder" Caption="공통 정보" IsNewNode="True">
+            <Items IsNewNode="True">
+              <Item Id="사업장 등록" ImageName="Actions_Home" Caption="사업장 등록" ViewId="Company_ListView" Index="0" IsNewNode="True" />
+              <Item Id="부서 등록" Caption="부서 등록" ImageName="BO_Department" ViewId="Department_ListView" Index="1" IsNewNode="True" />
+              <Item Id="직원 등록" Caption="직원 등록" ImageName="BO_Employee" ViewId="Employee_ListView" Index="2" IsNewNode="True" />
+              <Item Id="거래처" Caption="거래처" ImageName="BO_Customer" ViewId="BusinessPartner_ListView" Index="3" IsNewNode="True" />
+              <Item Id="공장 등록" Caption="공장 등록" ImageName="BO_Organization" ViewId="Factory_ListView" Index="4" IsNewNode="True" />
+              <Item Id="창고 등록" Caption="창고 등록" ViewId="WareHouse_ListView" Index="5" IsNewNode="True" />
+              <Item Id="단위 등록" Caption="단위 등록" ImageName="WeightedPies" ViewId="Unit_ListView" Index="6" IsNewNode="True" />
+              <Item Id="코드 등록" Caption="코드 등록" ViewId="UniversalMajorCode_ListView" ImageName="ModelEditor_KeyProperty" Index="7" IsNewNode="True" />
+            </Items>
+          </Item>
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
+  <Options UIType="TabbedMDI" FormStyle="Ribbon" />
+  <SchemaModules>
+    <SchemaModule Name="CloneObjectModule" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerModuleBase" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerWindowsFormsModule" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SystemModule" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SystemWindowsFormsModule" Version="23.1.9.0" IsNewNode="True" />
+  </SchemaModules>
 </Application>

@@ -45,6 +45,11 @@
         </Items>
       </Item>
       <Item Id="공통 정보" Visible="False" Index="2" />
+      <Item Id="생산 계획 관리">
+        <Items>
+          <Item Id="MasterWorkInstruction_ListView" ImageName="TableProperties" />
+        </Items>
+      </Item>
       <Item Id="생산 정보" Visible="False" />
       <Item Id="영업 관리">
         <Items>

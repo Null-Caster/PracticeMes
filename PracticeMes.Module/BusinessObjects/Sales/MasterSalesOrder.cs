@@ -99,7 +99,7 @@ public class MasterSalesOrder : BaseObject
     [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "생산유형을 입력하세요.")]
-    [XafDisplayName("생산유형"), ToolTip("생산유형")]  // 양산,샘플,개발
+    [XafDisplayName("생산유형"), ToolTip("생산유형")]
     public UniversalMinorCode ProductionType
     {
         get { return GetPropertyValue<UniversalMinorCode>(nameof(ProductionType)); }

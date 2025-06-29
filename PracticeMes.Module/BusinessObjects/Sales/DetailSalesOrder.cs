@@ -63,15 +63,6 @@ public class DetailSalesOrder : BaseObject
     }
 
     [VisibleInLookupListView(true)]
-    [RuleValueComparison(ValueComparisonType.GreaterThanOrEqual, 0, CustomMessageTemplate = "계획수량은 0 이상이어야 합니다.")]
-    [XafDisplayName("계획수량"), ToolTip("계획수량")]
-    public double ProductPlanningQuantity
-    {
-        get { return GetPropertyValue<double>(nameof(ProductPlanningQuantity)); }
-        set { SetPropertyValue(nameof(ProductPlanningQuantity), value); }
-    }
-
-    [VisibleInLookupListView(true)]
     [ModelDefault("LookupProperty", nameof(Unit.UnitName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [XafDisplayName("수주단위"), ToolTip("수주단위")]

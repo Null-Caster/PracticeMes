@@ -105,6 +105,10 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
             set { SetPropertyValue(nameof(CreatedDateTime), value); }
         }
+
+        [XafDisplayName("출하 상세")]
+        [Association(@"DetailSalesShipmentReferencesMasterSalesShipment"), DevExpress.Xpo.Aggregated]
+        public XPCollection<DetailSalesShipment> DetailSalesShipmentObjects { get { return GetCollection<DetailSalesShipment>(nameof(DetailSalesShipmentObjects)); } }
         #endregion
 
         #region Constructors
@@ -115,6 +119,39 @@ namespace PracticeMes.Module.BusinessObjects.Sales
         public override void AfterConstruction()
         {
             base.AfterConstruction();
+
+            SalesShipmentDateTime = DateTime.Now;
+            CreatedDateTime = DateTime.Now;
+        }
+
+        protected override void OnChanged(string propertyName, object oldValue, object newValue)
+        {
+            base.OnChanged(propertyName, oldValue, newValue);
+            if (Session.IsObjectsLoading)
+            {
+                return;
+            }
+            switch (propertyName)
+            {
+                case nameof(SalesShipmentDateTime):
+                    CreateSalesOrderNumber();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void CreateSalesOrderNumber()
+        {
+            var salesShipmentDate = SalesShipmentDateTime.ToString("yyyyMMdd");
+            var salesShipmentObjects = new XPCollection<MasterSalesShipment>(Session)
+                .Where(x => x.SalesShipmentNumber.StartsWith($"{salesShipmentDate}"));
+            string suffix = "001";
+            if (salesShipmentObjects.Count() > 0)
+            {
+                suffix = (salesShipmentObjects.Select(s => int.Parse(s.SalesShipmentNumber.Split('-')[s.SalesShipmentNumber.Split('-').Length - 1])).Max() + 1).ToString("000");
+            }
+            SalesShipmentNumber = $"{salesShipmentDate}-{suffix}";
         }
         #endregion
     }

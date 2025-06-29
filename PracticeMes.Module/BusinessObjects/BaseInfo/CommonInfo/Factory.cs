@@ -53,7 +53,7 @@ public class Factory : BaseObject
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "소속 사업장 이름을 입력하세요.")]
     [XafDisplayName("소속 사업장 이름"), ToolTip("소속 사업장 이름")]
-    [ImmediatePostData]
+    [ImmediatePostData (true)]
     public Company CompanyObject
     {
         get { return GetPropertyValue<Company>(nameof(CompanyObject)); }
@@ -82,17 +82,17 @@ public class Factory : BaseObject
         set { SetPropertyValue(nameof(LotCode), value); }
     }
 
-    [VisibleInLookupListView(true)]
-    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'OrderType' AND IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "생산 유형을 입력하세요.")]
-    [XafDisplayName("생산 유형"), ToolTip("생산 유형")]
-    public UniversalMinorCode OrderType
-    {
-        get { return GetPropertyValue<UniversalMinorCode>(nameof(OrderType)); }
-        set { SetPropertyValue(nameof(OrderType), value); }
-    }
+    //[VisibleInLookupListView(true)]
+    //[DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'OrderType' AND IsEnabled == True")]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[RuleRequiredField(CustomMessageTemplate = "생산 유형을 입력하세요.")]
+    //[XafDisplayName("생산 유형"), ToolTip("생산 유형")]
+    //public UniversalMinorCode OrderType
+    //{
+    //    get { return GetPropertyValue<UniversalMinorCode>(nameof(OrderType)); }
+    //    set { SetPropertyValue(nameof(OrderType), value); }
+    //}
 
     [VisibleInLookupListView(true)]
     [XafDisplayName("비고"), ToolTip("비고")]
@@ -133,6 +133,16 @@ public class Factory : BaseObject
 
         CreatedDateTime = DateTime.Now;
         IsEnabled = true;
+    }
+
+    protected override void OnChanged(string propertyName, object oldValue, object newValue)
+    {
+        base.OnChanged(propertyName, oldValue, newValue);
+
+        if (propertyName == nameof(CompanyObject))
+        {
+            CompanyObjectCode = CompanyObject?.CompanyCode;
+        }
     }
     #endregion
 

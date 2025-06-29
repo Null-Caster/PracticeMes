@@ -15,6 +15,8 @@ using DevExpress.Xpo;
 namespace PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 
 [DefaultClassOptions]
+[NavigationItem("공통 정보"), XafDisplayName("창고 등록")]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
 public class WareHouse : BaseObject
 {
 
@@ -66,7 +68,6 @@ public class WareHouse : BaseObject
     [DataSourceCriteria("UniversalMajorCodeObject.MajorCode = 'WareHouseType' AND IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "창고 유형을 입력하세요.")]
     [XafDisplayName("창고 유형"), ToolTip("창고 유형")]
     public UniversalMinorCode WareHouseType
     {

@@ -73,29 +73,27 @@ public class Item : BaseObject
         set { SetPropertyValue(nameof(UnitPrice), value); }
     }
 
-    [VisibleInLookupListView(true)]
-    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'RegistType' AND IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "품목계정을 입력하세요.")]
-    [XafDisplayName("등록유형"), ToolTip("등록유형")]
-    public UniversalMinorCode RegistType
-    {
-        get { return GetPropertyValue<UniversalMinorCode>(nameof(RegistType)); }
-        set { SetPropertyValue(nameof(RegistType), value); }
-    }
+    //[VisibleInLookupListView(true)]
+    //[DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'RegistType' AND IsEnabled == True")]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[XafDisplayName("등록유형"), ToolTip("등록유형")]
+    //public UniversalMinorCode RegistType
+    //{
+    //    get { return GetPropertyValue<UniversalMinorCode>(nameof(RegistType)); }
+    //    set { SetPropertyValue(nameof(RegistType), value); }
+    //}
 
-    [VisibleInLookupListView(true)]
-    [ImmediatePostData]
-    [ModelDefault("LookupProperty", nameof(Unit.UnitName))]
-    [RuleRequiredField(CustomMessageTemplate = "단위를 입력하세요.")]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [XafDisplayName("단위"), ToolTip("단위")]
-    public Unit UnitObject
-    {
-        get { return GetPropertyValue<Unit>(nameof(UnitObject)); }
-        set { SetPropertyValue(nameof(UnitObject), value); }
-    }
+    //[VisibleInLookupListView(true)]
+    //[ImmediatePostData]
+    //[ModelDefault("LookupProperty", nameof(Unit.UnitName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[XafDisplayName("단위"), ToolTip("단위")]
+    //public Unit UnitObject
+    //{
+    //    get { return GetPropertyValue<Unit>(nameof(UnitObject)); }
+    //    set { SetPropertyValue(nameof(UnitObject), value); }
+    //}
 
     [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]

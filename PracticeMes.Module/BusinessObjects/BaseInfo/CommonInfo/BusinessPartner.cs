@@ -95,18 +95,15 @@ public class BusinessPartner : BaseObject
     }
 
     [VisibleInLookupListView(true)]
-    [DataSourceCriteria("IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(Employee.EmployeeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [XafDisplayName("계약담당자"), ToolTip("계약담당자")]
-    public Employee EmployeeObject
+    [XafDisplayName("거래처 담당자"), ToolTip("거래처 담당자")]
+    public string ClientManager
     {
-        get { return GetPropertyValue<Employee>(nameof(EmployeeObject)); }
-        set { SetPropertyValue(nameof(EmployeeObject), value); }
+        get { return GetPropertyValue<string>(nameof(ClientManager)); }
+        set { SetPropertyValue(nameof(ClientManager), value); }
     }
 
     [VisibleInLookupListView(true)]
-    [XafDisplayName("계약담당자번호"), ToolTip("계약담당자번호")]
+    [XafDisplayName("거래처 담당자 번호"), ToolTip("거래처 담당자 번호")]
     public string MobilephoneNumber
     {
         get { return GetPropertyValue<string>(nameof(MobilephoneNumber)); }
@@ -114,7 +111,7 @@ public class BusinessPartner : BaseObject
     }
 
     [VisibleInLookupListView(true)]
-    [XafDisplayName("계약담당자메일"), ToolTip("계약담당자메일")]
+    [XafDisplayName("거래처 담당자 메일"), ToolTip("거래처 담당자 메일")]
     public string Email
     {
         get { return GetPropertyValue<string>(nameof(Email)); }

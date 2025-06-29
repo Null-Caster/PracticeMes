@@ -45,7 +45,7 @@ public class MasterPurchaseOrder : BaseObject
     [ModelDefault("LookupProperty", nameof(BusinessPartner.BusinessPartnerName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "거래처를 선택하세요.")]
-    [XafDisplayName("거래처정보"), ToolTip("거래처정보")]
+    [XafDisplayName("거래처"), ToolTip("거래처")]
     public BusinessPartner BusinessPartnerObject
     {
         get { return GetPropertyValue<BusinessPartner>(nameof(BusinessPartnerObject)); }

@@ -26,7 +26,6 @@ public class DetailSalesOrder : BaseObject
     #region Properties
     [ImmediatePostData(true)]
     [VisibleInLookupListView(true)]
-    [DataSourceCriteria("IsEnabled == True AND ItemAccountObject.ItemAccountName != '원자재'")]
     [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "품목 코드를 입력하세요.")]
@@ -54,6 +53,7 @@ public class DetailSalesOrder : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [ImmediatePostData(true)]
     [RuleValueComparison(ValueComparisonType.GreaterThanOrEqual, 0, CustomMessageTemplate = "수주 수량은 0 이상이어야 합니다.")]
     [XafDisplayName("수주 수량"), ToolTip("수주 수량")]
     public double SalesOrderQuantity
@@ -65,6 +65,7 @@ public class DetailSalesOrder : BaseObject
     [VisibleInLookupListView(true)]
     [ModelDefault("LookupProperty", nameof(Unit.UnitName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [RuleRequiredField(CustomMessageTemplate = "수주단위를 입력하세요.")]
     [XafDisplayName("수주단위"), ToolTip("수주단위")]
     public Unit SalesOrderUnit
     {
@@ -72,17 +73,17 @@ public class DetailSalesOrder : BaseObject
         set { SetPropertyValue(nameof(SalesOrderUnit), value); }
     }
 
-    [VisibleInLookupListView(true)]
-    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'SalesOrderType' AND IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "수주유형을 입력하세요.")]
-    [XafDisplayName("수주유형"), ToolTip("수주유형")]
-    public UniversalMinorCode SalesOrderType
-    {
-        get { return GetPropertyValue<UniversalMinorCode>(nameof(SalesOrderType)); }
-        set { SetPropertyValue(nameof(SalesOrderType), value); }
-    }
+    //[VisibleInLookupListView(true)]
+    //[DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'SalesOrderType' AND IsEnabled == True")]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[RuleRequiredField(CustomMessageTemplate = "수주유형을 입력하세요.")]
+    //[XafDisplayName("수주유형"), ToolTip("수주유형")]
+    //public UniversalMinorCode SalesOrderType
+    //{
+    //    get { return GetPropertyValue<UniversalMinorCode>(nameof(SalesOrderType)); }
+    //    set { SetPropertyValue(nameof(SalesOrderType), value); }
+    //}
 
     [VisibleInLookupListView(true)]
     [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.##")]
@@ -94,6 +95,7 @@ public class DetailSalesOrder : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [ImmediatePostData(true)]
     [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.##")]
     [XafDisplayName("수주 금액"), ToolTip("수주 금액")]
     public double SalesOrderPrice
@@ -167,20 +169,12 @@ public class DetailSalesOrder : BaseObject
             return;
         }
 
-        // 수주 금액 계산
-        var salesOrderPrice = UnitPrice * SalesOrderQuantity;
-        // 부가세 계산
-        var vatPrice = SalesOrderPrice * 0.1;
-
         switch (propertyName)
         {
             case nameof(SalesOrderQuantity):
-                SalesOrderPrice = salesOrderPrice;
-                VATPrice = vatPrice;
-                break;
             case nameof(UnitPrice):
-                SalesOrderPrice = salesOrderPrice;
-                VATPrice = vatPrice;
+                SalesOrderPrice = UnitPrice * SalesOrderQuantity;  // 수주 금액 계산
+                VATPrice = SalesOrderPrice * 0.1;    // 부가세 계산
                 break;
             case nameof(ItemObject):
                 if (ItemObject != null)

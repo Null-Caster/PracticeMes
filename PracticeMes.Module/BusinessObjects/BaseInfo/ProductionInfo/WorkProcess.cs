@@ -70,52 +70,68 @@ public class WorkProcess : BaseObject
         set { SetPropertyValue(nameof(WorkProcessSortOrder), value); }
     }
 
+    //[VisibleInLookupListView(true)]
+    //[DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'YESNO' AND IsEnabled == True")]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[RuleRequiredField(CustomMessageTemplate = "설비필수여부를 입력하세요.")]
+    //[XafDisplayName("설비필수여부"), ToolTip("설비필수여부")]
+    //public UniversalMinorCode EquipmentUsageOption
+    //{
+    //    get { return GetPropertyValue<UniversalMinorCode>(nameof(EquipmentUsageOption)); }
+    //    set
+    //    { SetPropertyValue(nameof(EquipmentUsageOption), value); }
+    //}
+
+    //[VisibleInLookupListView(true)]
+    //[DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'YESNO' AND IsEnabled == True")]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[RuleRequiredField(CustomMessageTemplate = "생산작업자등록을 입력하세요.")]
+    //[XafDisplayName("생산작업자등록"), ToolTip("생산작업자등록")]
+    //public UniversalMinorCode ProductionWorkerAssignment
+    //{
+    //    get { return GetPropertyValue<UniversalMinorCode>(nameof(ProductionWorkerAssignment)); }
+    //    set
+    //    { SetPropertyValue(nameof(ProductionWorkerAssignment), value); }
+    //}
+
+    //[VisibleInLookupListView(true)]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[XafDisplayName("생산실적입력"), ToolTip("생산실적입력")]
+    //public bool IsProductionResultEnabled
+    //{
+    //    get { return GetPropertyValue<bool>(nameof(IsProductionResultEnabled)); }
+    //    set
+    //    { SetPropertyValue(nameof(IsProductionResultEnabled), value); }
+    //}
+
+    //[VisibleInLookupListView(true)]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[XafDisplayName("불량입력"), ToolTip("불량입력")]
+    //public bool IsDefectInputEnabled
+    //{
+    //    get { return GetPropertyValue<bool>(nameof(IsDefectInputEnabled)); }
+    //    set
+    //    { SetPropertyValue(nameof(IsDefectInputEnabled), value); }
+    //}
+
     [VisibleInLookupListView(true)]
-    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'YESNO' AND IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "설비필수여부를 입력하세요.")]
-    [XafDisplayName("설비필수여부"), ToolTip("설비필수여부")]
-    public UniversalMinorCode EquipmentUsageOption
+    [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
+    public bool IsEnabled
     {
-        get { return GetPropertyValue<UniversalMinorCode>(nameof(EquipmentUsageOption)); }
-        set
-        { SetPropertyValue(nameof(EquipmentUsageOption), value); }
+        get { return GetPropertyValue<bool>(nameof(IsEnabled)); }
+        set { SetPropertyValue(nameof(IsEnabled), value); }
     }
 
     [VisibleInLookupListView(true)]
-    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'YESNO' AND IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "생산작업자등록을 입력하세요.")]
-    [XafDisplayName("생산작업자등록"), ToolTip("생산작업자등록")]
-    public UniversalMinorCode ProductionWorkerAssignment
+    [XafDisplayName("비고"), ToolTip("비고")]
+    public string Remark
     {
-        get { return GetPropertyValue<UniversalMinorCode>(nameof(ProductionWorkerAssignment)); }
-        set
-        { SetPropertyValue(nameof(ProductionWorkerAssignment), value); }
-    }
-
-    [VisibleInLookupListView(true)]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [XafDisplayName("생산실적입력"), ToolTip("생산실적입력")]
-    public bool IsProductionResultEnabled
-    {
-        get { return GetPropertyValue<bool>(nameof(IsProductionResultEnabled)); }
-        set
-        { SetPropertyValue(nameof(IsProductionResultEnabled), value); }
-    }
-
-    [VisibleInLookupListView(true)]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [XafDisplayName("불량입력"), ToolTip("불량입력")]
-    public bool IsDefectInputEnabled
-    {
-        get { return GetPropertyValue<bool>(nameof(IsDefectInputEnabled)); }
-        set
-        { SetPropertyValue(nameof(IsDefectInputEnabled), value); }
+        get { return GetPropertyValue<string>(nameof(Remark)); }
+        set { SetPropertyValue(nameof(Remark), value); }
     }
 
     [VisibleInLookupListView(true)]
@@ -127,14 +143,6 @@ public class WorkProcess : BaseObject
     {
         get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
         set { SetPropertyValue(nameof(CreatedDateTime), value); }
-    }
-
-    [VisibleInLookupListView(true)]
-    [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
-    public bool IsEnabled
-    {
-        get { return GetPropertyValue<bool>(nameof(IsEnabled)); }
-        set { SetPropertyValue(nameof(IsEnabled), value); }
     }
     #endregion
 

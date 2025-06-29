@@ -93,18 +93,18 @@ public class MasterSalesOrder : BaseObject
         set { SetPropertyValue(nameof(WareHouseObject), value); }
     }
 
-    [VisibleInLookupListView(true)]
-    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'RegistType' AND IsEnabled == True")]
-    [Appearance("ProductionTypeEdit", Criteria = "!(IsNewObject(this))", Enabled = false)]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "생산유형을 입력하세요.")]
-    [XafDisplayName("생산유형"), ToolTip("생산유형")]
-    public UniversalMinorCode ProductionType
-    {
-        get { return GetPropertyValue<UniversalMinorCode>(nameof(ProductionType)); }
-        set { SetPropertyValue(nameof(ProductionType), value); }
-    }
+    //[VisibleInLookupListView(true)]
+    //[DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'RegistType' AND IsEnabled == True")]
+    //[Appearance("ProductionTypeEdit", Criteria = "!(IsNewObject(this))", Enabled = false)]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[RuleRequiredField(CustomMessageTemplate = "생산유형을 입력하세요.")]
+    //[XafDisplayName("생산유형"), ToolTip("생산유형")]
+    //public UniversalMinorCode ProductionType
+    //{
+    //    get { return GetPropertyValue<UniversalMinorCode>(nameof(ProductionType)); }
+    //    set { SetPropertyValue(nameof(ProductionType), value); }
+    //}
 
     [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]
@@ -140,7 +140,7 @@ public class MasterSalesOrder : BaseObject
     {
         base.AfterConstruction();
         FactoryObject = this.Session.Query<Factory>().FirstOrDefault();
-        ProductionType = this.Session.Query<UniversalMinorCode>().FirstOrDefault(x => x.UniversalMajorCodeObject.MajorCode == "RegistType" && x.CodeName == "양산");
+        //ProductionType = this.Session.Query<UniversalMinorCode>().FirstOrDefault(x => x.UniversalMajorCodeObject.MajorCode == "RegistType" && x.CodeName == "양산");
         SalesOrderDateTime = DateTime.Now;
         CreatedDateTime = DateTime.Now;
     }

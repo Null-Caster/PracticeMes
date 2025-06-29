@@ -79,7 +79,6 @@ public class Employee : BaseObject
     [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'Position' AND IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "직책을 입력하세요.")]
     [XafDisplayName("직책"), ToolTip("직책")]
     public UniversalMinorCode Position
     {
@@ -91,7 +90,6 @@ public class Employee : BaseObject
     [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'TaskType' AND IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "직무를 입력하세요.")]
     [XafDisplayName("직무"), ToolTip("직무")]
     public UniversalMinorCode TaskType
     {

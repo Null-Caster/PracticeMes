@@ -152,12 +152,12 @@ public class MasterProductionPlanning : BaseObject
         set { SetPropertyValue(nameof(UnitObject), value); }
     }
 
-    [VisibleInLookupListView(true)]
-    [XafDisplayName("수주유형"), ToolTip("수주유형")]
-    public string SalesOrderType
-    {
-        get { return DetailSalesOrderObject?.SalesOrderType?.CodeName; }
-    }
+    //[VisibleInLookupListView(true)]
+    //[XafDisplayName("수주유형"), ToolTip("수주유형")]
+    //public string SalesOrderType
+    //{
+    //    get { return DetailSalesOrderObject?.SalesOrderType?.CodeName; }
+    //}
 
     [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]

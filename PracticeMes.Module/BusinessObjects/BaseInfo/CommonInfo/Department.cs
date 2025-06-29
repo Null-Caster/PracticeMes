@@ -31,6 +31,7 @@ public class Department : BaseObject, ITreeNode
         get { return GetPropertyValue<string>(nameof(DepartmentCode)); }
         set { SetPropertyValue(nameof(DepartmentCode), value); }
     }
+
     [RuleRequiredField(CustomMessageTemplate = "부서 이름을 입력하세요.")]
     [XafDisplayName("부서 이름"), ToolTip("부서 이름")]
     public string DepartmentName
@@ -38,6 +39,7 @@ public class Department : BaseObject, ITreeNode
         get { return GetPropertyValue<string>(nameof(DepartmentName)); }
         set { SetPropertyValue(nameof(DepartmentName), value); }
     }
+
     [DataSourceCriteria("IsEnabled = True")]
     [ModelDefault("LookupProperty", nameof(Company.CompanyName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
@@ -48,6 +50,7 @@ public class Department : BaseObject, ITreeNode
         get { return GetPropertyValue<Company>(nameof(CompanyObject)); }
         set { SetPropertyValue(nameof(CompanyObject), value); }
     }
+
     [DataSourceCriteria("IsEnabled = True")]
     [ModelDefault("LookupProperty", nameof(Factory.FactoryName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
@@ -58,18 +61,7 @@ public class Department : BaseObject, ITreeNode
         get { return GetPropertyValue<Factory>(nameof(FactoryObject)); }
         set { SetPropertyValue(nameof(FactoryObject), value); }
     }
-    [ModelDefault("AllowEdit", "false")]
-    [XafDisplayName("노드 이름"), ToolTip("노드 이름")]
-    public string Name { get { return DepartmentName is null ? string.Empty : $"부서 코드: {DepartmentCode} 부서 이름: {DepartmentName}"; } }
-    [Appearance("Parent", Enabled = false, Visibility = ViewItemVisibility.Hide)]
-    [ModelDefault("AllowEdit", "false")]
-    [Association("DepartmentParent-DepartmentChild")]
-    [XafDisplayName("부모 노드 이름"), ToolTip("부모 노드 이름")]
-    public Department Parent
-    {
-        get { return GetPropertyValue<Department>(nameof(Parent)); }
-        set { SetPropertyValue(nameof(Parent), value); }
-    }
+
     [ModelDefault("AllowEdit", "False")]
     [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss.fff")]
     [RuleRequiredField(CustomMessageTemplate = "생성 일시를 입력하세요.")]
@@ -79,11 +71,26 @@ public class Department : BaseObject, ITreeNode
         get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
         set { SetPropertyValue(nameof(CreatedDateTime), value); }
     }
+
     [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
     public bool IsEnabled
     {
         get { return GetPropertyValue<bool>(nameof(IsEnabled)); }
         set { SetPropertyValue(nameof(IsEnabled), value); }
+    }
+
+    [ModelDefault("AllowEdit", "false")]
+    [XafDisplayName("노드 이름"), ToolTip("노드 이름")]
+    public string Name { get { return DepartmentName is null ? string.Empty : $"부서 코드: {DepartmentCode} 부서 이름: {DepartmentName}"; } }
+    [Appearance("Parent", Enabled = false, Visibility = ViewItemVisibility.Hide)]
+    [ModelDefault("AllowEdit", "false")]
+    [Association("DepartmentParent-DepartmentChild")]
+    [XafDisplayName("부모 노드 이름"), ToolTip("부모 노드 이름")]
+
+    public Department Parent
+    {
+        get { return GetPropertyValue<Department>(nameof(Parent)); }
+        set { SetPropertyValue(nameof(Parent), value); }
     }
 
     [Association("DepartmentParent-DepartmentChild"), DevExpress.Xpo.Aggregated]

@@ -32,7 +32,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
         }
 
         [VisibleInLookupListView(true)]
-        [XafDisplayName("품목 코드"), ToolTip("\"품목 코드")]
+        [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
         public string ItemCode
         {
             get { return DetailSalesOrderObject?.ItemObject?.ItemCode; }
@@ -69,6 +69,17 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
             set { SetPropertyValue(nameof(CreatedDateTime), value); }
         }
+
+        [Association(@"DetailSalesShipmentReferencesMasterSalesShipment")]
+        public MasterSalesShipment MasterSalesShipmentObject
+        {
+            get { return GetPropertyValue<MasterSalesShipment>(nameof(MasterSalesShipmentObject)); }
+            set { SetPropertyValue(nameof(MasterSalesShipmentObject), value); }
+        }
+
+        [XafDisplayName("LOT 정보")]
+        [Association(@"DetailSalesShipmentLotReferencesDetailSalesShipment"), DevExpress.Xpo.Aggregated]
+        public XPCollection<DetailSalesShipmentLot> DetailSalesShipmentLotObjects { get { return GetCollection<DetailSalesShipmentLot>(nameof(DetailSalesShipmentLotObjects)); } }
         #endregion
 
         #region Constructors

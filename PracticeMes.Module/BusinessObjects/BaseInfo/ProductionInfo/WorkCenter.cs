@@ -52,31 +52,31 @@ public class WorkCenter : BaseObject
         set { SetPropertyValue(nameof(DepartmentObject), value); }
     }
 
-    [VisibleInLookupListView(true)]
-    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'WorkCenterType' AND IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "작업장유형을 입력하세요.")]
-    [XafDisplayName("작업장유형"), ToolTip("작업장유형")]
-    public UniversalMinorCode WorkCenterType
-    {
-        get { return GetPropertyValue<UniversalMinorCode>(nameof(WorkCenterType)); }
-        set
-        { SetPropertyValue(nameof(WorkCenterType), value); }
-    }
+    //[VisibleInLookupListView(true)]
+    //[DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'WorkCenterType' AND IsEnabled == True")]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[RuleRequiredField(CustomMessageTemplate = "작업장유형을 입력하세요.")]
+    //[XafDisplayName("작업장유형"), ToolTip("작업장유형")]
+    //public UniversalMinorCode WorkCenterType
+    //{
+    //    get { return GetPropertyValue<UniversalMinorCode>(nameof(WorkCenterType)); }
+    //    set
+    //    { SetPropertyValue(nameof(WorkCenterType), value); }
+    //}
 
-    [VisibleInLookupListView(true)]
-    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'WorkCenterStatus' AND IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "작업장상태를 입력하세요.")]
-    [XafDisplayName("작업장상태"), ToolTip("작업장상태")]
-    public UniversalMinorCode WorkCenterStatus
-    {
-        get { return GetPropertyValue<UniversalMinorCode>(nameof(WorkCenterStatus)); }
-        set
-        { SetPropertyValue(nameof(WorkCenterStatus), value); }
-    }
+    //[VisibleInLookupListView(true)]
+    //[DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'WorkCenterStatus' AND IsEnabled == True")]
+    //[ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[RuleRequiredField(CustomMessageTemplate = "작업장상태를 입력하세요.")]
+    //[XafDisplayName("작업장상태"), ToolTip("작업장상태")]
+    //public UniversalMinorCode WorkCenterStatus
+    //{
+    //    get { return GetPropertyValue<UniversalMinorCode>(nameof(WorkCenterStatus)); }
+    //    set
+    //    { SetPropertyValue(nameof(WorkCenterStatus), value); }
+    //}
 
     [VisibleInLookupListView(true)]
     [DataSourceCriteria("IsEnabled == True")]
@@ -91,6 +91,22 @@ public class WorkCenter : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
+    public bool IsEnabled
+    {
+        get { return GetPropertyValue<bool>(nameof(IsEnabled)); }
+        set { SetPropertyValue(nameof(IsEnabled), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("비고"), ToolTip("비고")]
+    public string Remark
+    {
+        get { return GetPropertyValue<string>(nameof(Remark)); }
+        set { SetPropertyValue(nameof(Remark), value); }
+    }
+
+    [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]
     [ModelDefault("EditMask", "yyyy/MM/dd HH:mm:ss")]
     [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
@@ -99,14 +115,6 @@ public class WorkCenter : BaseObject
     {
         get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
         set { SetPropertyValue(nameof(CreatedDateTime), value); }
-    }
-
-    [VisibleInLookupListView(true)]
-    [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
-    public bool IsEnabled
-    {
-        get { return GetPropertyValue<bool>(nameof(IsEnabled)); }
-        set { SetPropertyValue(nameof(IsEnabled), value); }
     }
     #endregion
 

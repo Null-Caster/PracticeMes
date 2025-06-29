@@ -38,8 +38,7 @@ public class MasterProductionPlanning : BaseObject
     [Index(1)]
     [VisibleInLookupListView(true)]
     [ImmediatePostData(true)]
-    [ModelDefault("AllowEdit", "False")]
-    //[ModelDefault("LookupProperty", nameof(DetailSalesOrder.SalesOrderNumberCriteria))]
+    [ModelDefault("LookupProperty", nameof(DetailSalesOrder.SalesOrderNumber))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [XafDisplayName("수주 번호"), ToolTip("수주 번호")]
     public DetailSalesOrder DetailSalesOrderObject
@@ -83,10 +82,10 @@ public class MasterProductionPlanning : BaseObject
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "거래처를 입력하세요.")]
     [XafDisplayName("거래처/수주처"), ToolTip("거래처/수주처")]
-    public BusinessPartner BisinessPartnerName
+    public BusinessPartner BusinessPartnerObject
     {
-        get { return GetPropertyValue<BusinessPartner>(nameof(BisinessPartnerName)); }
-        set { SetPropertyValue(nameof(BisinessPartnerName), value); }
+        get { return GetPropertyValue<BusinessPartner>(nameof(BusinessPartnerObject)); }
+        set { SetPropertyValue(nameof(BusinessPartnerObject), value); }
     }
 
     [ImmediatePostData(true)]
@@ -108,33 +107,34 @@ public class MasterProductionPlanning : BaseObject
         set { SetPropertyValue(nameof(EndDateTime), value); }
     }
 
+    [Index(3)]
     [ModelDefault("AllowEdit", "False")]
     [DataSourceCriteria("IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "품목 코드를 입력하세요.")]
-    [XafDisplayName("품목  코드"), ToolTip("품목 코드")]
+    [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
     public Item ItemObject
     {
         get { return GetPropertyValue<Item>(nameof(ItemObject)); }
         set { SetPropertyValue(nameof(ItemObject), value); }
     }
 
-    [VisibleInLookupListView(true)]
-    [ModelDefault("AllowEdit", "False")]
-    [DataSourceCriteria("IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(ItemAccount.ItemAccountName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [XafDisplayName("품목유형"), ToolTip("품목유형")]  // 제품, 반제품
-    public ItemAccount ProductType
-    {
-        get { return GetPropertyValue<ItemAccount>(nameof(ProductType)); }
-        set { SetPropertyValue(nameof(ProductType), value); }
-    }
+    //[VisibleInLookupListView(true)]
+    //[ModelDefault("AllowEdit", "False")]
+    //[DataSourceCriteria("IsEnabled == True")]
+    //[ModelDefault("LookupProperty", nameof(ItemAccount.ItemAccountName))]
+    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    //[XafDisplayName("품목 유형"), ToolTip("품목 유형")]
+    //public ItemAccount ItemAccountObject
+    //{
+    //    get { return GetPropertyValue<ItemAccount>(nameof(ItemAccountObject)); }
+    //    set { SetPropertyValue(nameof(ItemAccountObject), value); }
+    //}
 
     [Index(2)]
     [VisibleInLookupListView(true)]
-    [XafDisplayName("품번"), ToolTip("품번")]
+    [XafDisplayName("품목 이름"), ToolTip("품목 이름")]
     public string ItemName
     {
         get { return ItemObject?.ItemName; }
@@ -198,6 +198,48 @@ public class MasterProductionPlanning : BaseObject
         base.AfterConstruction();
 
         CreatedDateTime = DateTime.Now;
+
+        CreateProductionPlanningNumber();
+    }
+
+    // 생산 계획 번호 생성 (수주 번호랑 방식 같음??)
+    private void CreateProductionPlanningNumber()
+    {
+        var productPlanningDateTime = DateTime.Now.ToString("yyyyMMdd"); ;
+        var productPlanningObject = new XPCollection<MasterProductionPlanning>(Session)
+            .Where(x => x.ProductionPlanningNumber.StartsWith($"{productPlanningDateTime}"));
+        string suffix = "001";
+
+        if (productPlanningObject.Any())
+        {
+            suffix = (productPlanningObject.Select(s => int.Parse(s.ProductionPlanningNumber
+                .Split('-')
+                .Last()))
+                .Max() + 1)
+                .ToString("000");
+        }
+        this.ProductionPlanningNumber = $"{productPlanningDateTime}-{suffix}";
+    }
+
+    protected override void OnChanged(string propertyName, object oldValue, object newValue)
+    {
+        base.OnChanged(propertyName, oldValue, newValue);
+        if (this.Session.IsObjectsLoading)
+        {
+            return;
+        }
+
+        switch (propertyName)
+        {
+            case nameof(DetailSalesOrderObject):
+                ItemObject = DetailSalesOrderObject?.ItemObject;
+                FactoryObject = DetailSalesOrderObject?.MasterSalesOrderObject?.FactoryObject;
+                BusinessPartnerObject = DetailSalesOrderObject?.MasterSalesOrderObject?.BusinessPartnerObject;
+                UnitObject = DetailSalesOrderObject?.SalesOrderUnit;
+                break;
+            default:
+                break;
+        }
     }
     #endregion
 }

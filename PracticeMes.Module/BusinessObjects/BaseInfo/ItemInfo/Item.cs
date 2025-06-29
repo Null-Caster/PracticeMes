@@ -94,6 +94,21 @@ public class Item : BaseObject
     //    get { return GetPropertyValue<Unit>(nameof(UnitObject)); }
     //    set { SetPropertyValue(nameof(UnitObject), value); }
     //}
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
+    public bool IsEnabled
+    {
+        get { return GetPropertyValue<bool>(nameof(IsEnabled)); }
+        set { SetPropertyValue(nameof(IsEnabled), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("비고"), ToolTip("비고")]
+    public string Remark
+    {
+        get { return GetPropertyValue<string>(nameof(Remark)); }
+        set { SetPropertyValue(nameof(Remark), value); }
+    }
 
     [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]
@@ -104,14 +119,6 @@ public class Item : BaseObject
     {
         get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
         set { SetPropertyValue(nameof(CreatedDateTime), value); }
-    }
-
-    [VisibleInLookupListView(true)]
-    [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
-    public bool IsEnabled
-    {
-        get { return GetPropertyValue<bool>(nameof(IsEnabled)); }
-        set { SetPropertyValue(nameof(IsEnabled), value); }
     }
     #endregion
 

@@ -11,6 +11,9 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
+using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
+using PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo;
+using PracticeMes.Module.Common;
 
 namespace PracticeMes.Module.BusinessObjects.ProductPlanning
 {
@@ -33,24 +36,29 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         }
 
         [VisibleInLookupListView(true)]
+        [ModelDefault("LookupProperty", nameof(BusinessPartner.BusinessPartnerName))]
         [XafDisplayName("거래처/수주처"), ToolTip("거래처/수주처")]
-        public string BizPartnerObject
+        public BusinessPartner BizPartnerObject
         {
-            get { return MasterProductionPlanningObject?.BisinessPartnerName?.BusinessPartnerName; }
+            get => GetPropertyValue<BusinessPartner>(nameof(BizPartnerObject));
+            set => SetPropertyValue(nameof(BizPartnerObject), value);
         }
 
         [VisibleInLookupListView(true)]
-        [XafDisplayName("품번"), ToolTip("품번")]
-        public string ItemCode
+        [ModelDefault("LookupProperty", nameof(Item.ItemName))]
+        [XafDisplayName("품목 이름"), ToolTip("품목 이름")]
+        public Item ItemObject
         {
-            get { return MasterProductionPlanningObject?.ItemObject?.ItemName; }
+            get => GetPropertyValue<Item>(nameof(ItemObject));
+            set => SetPropertyValue(nameof(ItemObject), value);
         }
 
         [VisibleInLookupListView(true)]
         [XafDisplayName("오더수량"), ToolTip("오더수량")]
         public double SalesOrderQuantity
         {
-            get { return MasterProductionPlanningObject.ProductPlanningQuantity; }
+            get => GetPropertyValue<double>(nameof(SalesOrderQuantity));
+            set => SetPropertyValue(nameof(SalesOrderQuantity), value);
         }
 
         [VisibleInLookupListView(true)]
@@ -63,10 +71,24 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         }
 
         [VisibleInLookupListView(true)]
+        [ModelDefault("AllowEdit", "False")]
+        [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+        [XafDisplayName("지시상태"), ToolTip("지시상태")]
+        public UniversalMinorCode Progress
+        {
+            get
+            {
+                ProgressCheck pg = new ProgressCheck();
+                return pg.FindProgress(this.Session, this, "MasterWorkInstruction");
+            }
+        }
+
+        [VisibleInLookupListView(true)]
         [XafDisplayName("시작 예정일"), ToolTip("시작 예정일")]
         public DateTime StartDateTime
         {
-            get { return MasterProductionPlanningObject.StartDateTime; }
+            get => GetPropertyValue<DateTime>(nameof(StartDateTime));
+            set => SetPropertyValue(nameof(StartDateTime), value);
         }
 
         [VisibleInLookupListView(true)]
@@ -88,7 +110,7 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
 
         [VisibleInLookupListView(true)]
         [ModelDefault("AllowEdit", "False")]
-        [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
+        [ModelDefault("DisplayFormat", "yyyy/MM/dsd HH:mm:ss")]
         [ModelDefault("EditMask", "yyyy/MM/dd HH:mm:ss")]
         [XafDisplayName("생성 일시"), ToolTip("항목이 생성된 일시입니다.")]
         public DateTime CreatedDateTime
@@ -96,6 +118,10 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
             get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
             set { SetPropertyValue(nameof(CreatedDateTime), value); }
         }
+
+        [Association(@"DetailWorkInstructionReferencesMasterWrokInstruction"), DevExpress.Xpo.Aggregated]
+        [XafDisplayName("작업 지시 상세")]
+        public XPCollection<DetailWorkInstruction> DetailWorkInstructionObjects { get { return GetCollection<DetailWorkInstruction>(nameof(DetailWorkInstructionObjects)); } }
         #endregion
 
         #region Constructors
@@ -108,6 +134,21 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
             base.AfterConstruction();
 
             CreatedDateTime = DateTime.Now;
+        }
+
+        protected override void OnChanged(string propertyName, object oldValue, object newValue)
+        {
+            base.OnChanged(propertyName, oldValue, newValue);
+
+            if (Session.IsObjectsLoading) return;
+
+            if (propertyName == nameof(MasterProductionPlanningObject))
+            {
+                BizPartnerObject = MasterProductionPlanningObject?.BusinessPartnerObject;
+                ItemObject = MasterProductionPlanningObject?.ItemObject;
+                SalesOrderQuantity = MasterProductionPlanningObject?.ProductPlanningQuantity ?? 0;
+                StartDateTime = MasterProductionPlanningObject?.StartDateTime ?? DateTime.Now;
+            }
         }
         #endregion
 

@@ -59,9 +59,25 @@ public class WorkLine : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
+    public bool IsEnabled
+    {
+        get { return GetPropertyValue<bool>(nameof(IsEnabled)); }
+        set { SetPropertyValue(nameof(IsEnabled), value); }
+    }
+
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("비고"), ToolTip("비고")]
+    public string Remark
+    {
+        get { return GetPropertyValue<string>(nameof(Remark)); }
+        set { SetPropertyValue(nameof(Remark), value); }
+    }
+
+    [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]
-    [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
     [ModelDefault("EditMask", "yyyy/MM/dd HH:mm:ss")]
+    [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
     [XafDisplayName("생성 일시"), ToolTip("항목이 생성된 일시입니다.")]
     public DateTime CreatedDateTime
     {
@@ -69,13 +85,6 @@ public class WorkLine : BaseObject
         set { SetPropertyValue(nameof(CreatedDateTime), value); }
     }
 
-    [VisibleInLookupListView(true)]
-    [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
-    public bool IsEnabled
-    {
-        get { return GetPropertyValue<bool>(nameof(IsEnabled)); }
-        set { SetPropertyValue(nameof(IsEnabled), value); }
-    }
     #endregion
 
     #region Constructors

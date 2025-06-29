@@ -79,6 +79,7 @@ public class Department : BaseObject, ITreeNode
         set { SetPropertyValue(nameof(IsEnabled), value); }
     }
 
+    [Browsable(false)]
     [ModelDefault("AllowEdit", "false")]
     [XafDisplayName("노드 이름"), ToolTip("노드 이름")]
     public string Name { get { return DepartmentName is null ? string.Empty : $"부서 코드: {DepartmentCode} 부서 이름: {DepartmentName}"; } }

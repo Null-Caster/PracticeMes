@@ -18,6 +18,7 @@
           </Item>
           <Item Id="픔목 정보" Caption="품목 정보" Index="1" IsNewNode="True">
             <Items IsNewNode="True">
+              <Item Id="라우팅 등록" Caption="라우팅 등록" ImageName="ListNumbers" ViewId="MasterItemTypeRouting_ListView" IsNewNode="True" />
               <Item Id="품목 계정 등록" ImageName="Action_ModelDifferences_Create" Caption="품목 계정 등록" ViewId="ItemAccount_ListView" IsNewNode="True" />
               <Item Id="품목 그룹 등록" ImageName="Action_ModelDifferences_Create" Caption="품목 그룹 등록" ViewId="ItemGroup_ListView" IsNewNode="True" />
               <Item Id="품목 등록" ImageName="Actions_Rating" Caption="품목 등록" ViewId="Item_ListView" IsNewNode="True" />
@@ -66,10 +67,10 @@
   </NavigationItems>
   <Options UIType="TabbedMDI" FormStyle="Ribbon" />
   <SchemaModules>
-    <SchemaModule Name="CloneObjectModule" Version="23.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SchedulerModuleBase" Version="23.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SchedulerWindowsFormsModule" Version="23.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SystemModule" Version="23.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SystemWindowsFormsModule" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="CloneObjectModule" Version="23.1.15.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerModuleBase" Version="23.1.15.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerWindowsFormsModule" Version="23.1.15.0" IsNewNode="True" />
+    <SchemaModule Name="SystemModule" Version="23.1.15.0" IsNewNode="True" />
+    <SchemaModule Name="SystemWindowsFormsModule" Version="23.1.15.0" IsNewNode="True" />
   </SchemaModules>
 </Application>

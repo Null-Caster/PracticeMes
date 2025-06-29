@@ -54,4 +54,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PracticeMes.Module\PracticeMes.Module.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\Sales\" />
+  </ItemGroup>
 </Project>

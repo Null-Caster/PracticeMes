@@ -15,7 +15,7 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.Validation;
 using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.ProductionInfo;
-using PracticeMes.Module.BusinessObjects.Lot;
+using PracticeMes.Module.BusinessObjects.LotManagement;
 using PracticeMes.Module.BusinessObjects.ProductPlanning;
 using PracticeMes.Module.BusinessObjects.Sales;
 

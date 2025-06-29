@@ -15,7 +15,7 @@ using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfol;
 using PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo;
 
-namespace PracticeMes.Module.BusinessObjects.Lot;
+namespace PracticeMes.Module.BusinessObjects.LotManagement;
 
 [DefaultClassOptions]
 [NavigationItem("Lot 관리"), XafDisplayName("Lot 조회")]
@@ -206,6 +206,10 @@ public class Lot : BaseObject
     public Lot(Session session) : base(session) { }
     #endregion
 
+    #region Fields
+    private bool isDeleting;
+    #endregion
+
     #region Methods
     public override void AfterConstruction()
     {
@@ -213,6 +217,37 @@ public class Lot : BaseObject
 
         CreatedDateTime = DateTime.Now;
     }
+
+    protected override void OnSaving()
+    {
+        base.OnSaving();
+
+        // 신규 등록
+        if ((this.Session is not NestedUnitOfWork)
+            && (this.Session.DataLayer is not null)
+            && (this.Session.ObjectLayer is SimpleObjectLayer)
+            && (this.Session.IsNewObject(this) == true))
+        {
+            this.StockQuantity = CreateQuantity - DefectQuantity - InputQuantity - ReleaseQuantity - InspectionRequestQuantity + InspectiontQuantity - ReturnQuantity;
+            if (LotTypeObject?.LotTypeName == "불량")
+            {
+                this.StockQuantity = 0;
+            }
+        }
+        // 수정
+        if ((this.Session is not NestedUnitOfWork)
+             && (this.Session.DataLayer is not null)
+             && (this.Session.ObjectLayer is SimpleObjectLayer)
+             && (this.Session.IsNewObject(this) == false)
+             && isDeleting == false && IsDeleted == false)
+        {
+            this.StockQuantity = CreateQuantity - DefectQuantity - InputQuantity - ReleaseQuantity - InspectionRequestQuantity + InspectiontQuantity - ReturnQuantity;
+            if (LotTypeObject?.LotTypeName == "불량")
+            {
+                this.StockQuantity = 0;
+            }
+        }
+    }
     #endregion
-   
+
 }

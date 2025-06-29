@@ -14,6 +14,7 @@ using DevExpress.Xpo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfol;
 using PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo;
+using PracticeMes.Module.BusinessObjects.LotManagement;
 
 namespace PracticeMes.Module.BusinessObjects.Purchase;
 
@@ -23,18 +24,18 @@ namespace PracticeMes.Module.BusinessObjects.Purchase;
 public class DetailPurchaseInput : BaseObject
 {
     #region Properties
-    //[VisibleInLookupListView(true)]
-    //[ModelDefault("AllowEdit", "False")]
-    //[ModelDefault("LookupProperty", nameof(Lot.LotNumber))]
-    //[ModelDefault("LookupEditorMode", "AllItems")]
-    //[ModelDefault("LookupEditor.CreateNewItem", "False")]
-    //[RuleUniqueValue(CustomMessageTemplate = "Lot 번호가 중복되었습니다.")]
-    //[XafDisplayName("Lot 번호"), ToolTip("Lot 번호")]
-    //public Lot LotObject
-    //{
-    //    get { return GetPropertyValue<Lot>(nameof(LotObject)); }
-    //    set { SetPropertyValue(nameof(LotObject), value); }
-    //}
+    [VisibleInLookupListView(true)]
+    [ModelDefault("AllowEdit", "False")]
+    [ModelDefault("LookupProperty", nameof(Lot.LotNumber))]
+    [ModelDefault("LookupEditorMode", "AllItems")]
+    [ModelDefault("LookupEditor.CreateNewItem", "False")]
+    [RuleUniqueValue(CustomMessageTemplate = "Lot 번호가 중복되었습니다.")]
+    [XafDisplayName("Lot 번호"), ToolTip("Lot 번호")]
+    public Lot LotObject
+    {
+        get { return GetPropertyValue<Lot>(nameof(LotObject)); }
+        set { SetPropertyValue(nameof(LotObject), value); }
+    }
 
     [VisibleInLookupListView(true)]
     [ModelDefault("DisplayFormat", "yyyy/MM/dd")]

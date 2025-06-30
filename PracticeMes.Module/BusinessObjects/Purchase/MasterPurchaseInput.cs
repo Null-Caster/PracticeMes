@@ -134,6 +134,7 @@ public class MasterPurchaseInput : BaseObject
         CreatedDateTime = DateTime.Now;
     }
 
+    // 구매 입고 번호 생성
     private void CreatePurchaseOrederNum()
     {
         string todayPrefix = DateTime.Now.ToString("yyyyMMdd-");

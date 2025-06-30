@@ -30,12 +30,15 @@ public class FinalWorkResult : BaseObject
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "작업 지시 번호를 입력하세요.")]
     [XafDisplayName("작업 지시 번호"), ToolTip("작업 지시 번호")]
+    // 최종 공정에 해당하는 작업지시만 선택 가능
     public DetailWorkInstruction DetailWorkInstructionObject
     {
         get { return GetPropertyValue<DetailWorkInstruction>(nameof(DetailWorkInstructionObject)); }
         set { SetPropertyValue(nameof(DetailWorkInstructionObject), value); }
     }
 
+    // '진행중' 상태이면서 IsFinalWorkProcess == true 인 DetailWorkInstruction만 선택 가능
+    // 즉, 마지막 공정에 해당하는 작업 지시만 대상
     [Browsable(false)]
     public List<DetailWorkInstruction> AvailableFinalWorkInstructions
     {
@@ -111,6 +114,7 @@ public class FinalWorkResult : BaseObject
 
             var planningOid = DetailWorkInstructionObject.MasterWorkInstructionObject.MasterProductionPlanningObject.Oid;
 
+            // 중간 공정 실적(MiddleWorkResult) 조회
             var middleResult = new XPCollection<MiddleWorkResult>(this.Session)
                 .Where(x => x.DetailWorkInstructionObject != null &&
                             x.DetailWorkInstructionObject.MasterWorkInstructionObject.MasterProductionPlanningObject.Oid == planningOid &&

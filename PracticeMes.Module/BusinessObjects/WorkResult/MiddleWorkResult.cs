@@ -20,6 +20,7 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult;
 [DefaultClassOptions]
 [NavigationItem("공정 관리"), XafDisplayName("중간 공정 실적 등록")]
 [DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+// DetailWorkInstruction를 기반으로 공정별 생산 가능 수량(AvailableGoodQuantity) 등을 동적으로 계산
 public class MiddleWorkResult : BaseObject
 {
     #region Properties
@@ -36,6 +37,8 @@ public class MiddleWorkResult : BaseObject
         set { SetPropertyValue(nameof(DetailWorkInstructionObject), value); }
     }
 
+    // 작업 가능한 상세 작업지시 목록 반환
+    // 조건: 상태가 Proceeding이고, 마지막 공정이 아닌 항목
     [Browsable(false)]
     public List<DetailWorkInstruction> AvailableInstructionObjects
     {
@@ -135,20 +138,23 @@ public class MiddleWorkResult : BaseObject
     [VisibleInLookupListView(true)]
     [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.###")]
     [XafDisplayName("생산 가능 수량"), ToolTip("생산 가능 수량")]
+    // 중복 쿼리문 독립 함수로 변경 할 것
+    // Count 대신에 Any() 사용하여 성능 조금이라도 높일 것
     public double AvailableGoodQuantity
     {
         get
         {
-            // 작업지시마스터 지시수량 == 작업지시디테일 지시수량
+            // 작업지시 마스터 지시수량과 작업지시 디테일 지시수량이 같을 경우
             if (this.DetailWorkInstructionQuantity == this.WorkInstructionQuantity)
             {
                 var presentAvaliableStockQuantity = 0.0; // 현재공정 생산된 재고를 담을 변수
                 var pastAvaliableStockQuantity = 0.0; // 이전공정 생산된 재고를 담을 변수
 
-                // 현재 라우팅의 생산수량 합계
+                // 현재 라우팅(공정)의 생산 수량 합계
                 var presentRoutings = new XPCollection<MiddleWorkResult>(this.Session)
-                                       .Where(x => ((x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == ((this.DetailWorkInstructionObject?.RoutingIndex ?? 0)))
-                                       && x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == this.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid).ToList();
+                                       .Where(x => ((x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == ((this.DetailWorkInstructionObject?.RoutingIndex ?? 0)))&& 
+                                                     x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == this.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid)
+                                       .ToList();
                 if (presentRoutings.Count != 0)
                 {
 
@@ -158,17 +164,20 @@ public class MiddleWorkResult : BaseObject
                     }
                 }
 
-                // 이전 공정 라우팅의 생산 수량 합계
+                // 이전 라우팅(공정)의 생산 수량 합계
+                // 조건에 -1 있음
                 var pastRoutings = new XPCollection<MiddleWorkResult>(this.Session)
-                                       .Where(x => ((x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == ((this.DetailWorkInstructionObject?.RoutingIndex - 1 ?? 0)))
-                                       && x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == this.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid).ToList();
+                                       .Where(x => ((x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == ((this.DetailWorkInstructionObject?.RoutingIndex - 1 ?? 0))) && 
+                                                     x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == this.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid)
+                                       .ToList();
                 if (pastRoutings.Count != 0)
                 {
                     if (pastRoutings.Any(x => x.DetailWorkInstructionQuantity != x.WorkInstructionQuantity))
                     {
-                        // 이전 공정이 양품이 없으면 다음공정부터 생산 불가능 1개라도 있으면 다음공정부터 처음부터 시리얼 발행 가능
-                        pastAvaliableStockQuantity = pastRoutings.SelectMany(x => x.AssySerialProductObjects ?? Enumerable.Empty<AssySerialProduct>()).Sum(x => x.GoodQuantity) == 0 ? 0 : DetailWorkInstructionQuantity;
-
+                        // 이전 공정에 양품이 없으면 다음 공정부터 생산 불가능
+                        // 1개라도 있으면 다음 공정부터 처음부터 시리얼 발행 가능
+                        pastAvaliableStockQuantity = pastRoutings.SelectMany(x => x.AssySerialProductObjects ?? Enumerable.Empty<AssySerialProduct>())
+                            .Sum(x => x.GoodQuantity) == 0 ? 0 : DetailWorkInstructionQuantity;
                     }
                     else
                     {
@@ -179,7 +188,8 @@ public class MiddleWorkResult : BaseObject
                     }
                 }
 
-                if (this.DetailWorkInstructionObject?.RoutingIndex == 1) // 첫번째 공정일때
+                // 첫 번째 공정이면 (선행 공정 없음) → 전체 지시 수량에서 현재 실적만 차감
+                if (this.DetailWorkInstructionObject?.RoutingIndex == 1)
                 {
                     if (presentRoutings.Count != 0)
                     {
@@ -190,6 +200,7 @@ public class MiddleWorkResult : BaseObject
                         return DetailWorkInstructionQuantity; // 첫번째 공정이면서 생산도 하나도 안한상태
                     }
                 }
+                // 과거 공정 생산량에서 현재 생산량을 -  남은 생산 수량 계산
                 else
                 {
                     if (presentRoutings.Count != 0)
@@ -202,14 +213,15 @@ public class MiddleWorkResult : BaseObject
                     }
                 }
             }
-            else // 작업지시 상세와 작업지시 마스터의 수량이 다른경우
+            else // 작업지시 상세와 작업지시 마스터의 수량이 다른 경우
             {
-                var presentAvaliableStockQuantity = 0.0; // 현재공정 생산된 재고를 담을 변수
+                var presentAvaliableStockQuantity = 0.0; // 현재공정 생산된 재고 수량 담을 변수
 
-                // 현재 라우팅의 생산수량 합계
+                // 현재 라우팅(공정)의 생산수량 합계
                 var presentRoutings = new XPCollection<MiddleWorkResult>(this.Session)
-                                       .Where(x => ((x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == ((this.DetailWorkInstructionObject?.RoutingIndex ?? 0)))
-                                       && x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == this.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid).ToList();
+                                       .Where(x => ((x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == ((this.DetailWorkInstructionObject?.RoutingIndex ?? 0))) && 
+                                                     x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == this.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid)
+                                       .ToList();
                 if (presentRoutings.Count != 0)
                 {
                     foreach (var presentRouting in presentRoutings)
@@ -240,6 +252,8 @@ public class MiddleWorkResult : BaseObject
         get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
         set { SetPropertyValue(nameof(CreatedDateTime), value); }
     }
+
+    // 시리얼 생산 실적 정보 연결
 
     [Association(@"AssySerialProductReferencesMiddleWorkResult"), DevExpress.Xpo.Aggregated]
     public XPCollection<AssySerialProduct> AssySerialProductObjects { get { return GetCollection<AssySerialProduct>(nameof(AssySerialProductObjects)); } }

@@ -84,16 +84,17 @@ public class Item : BaseObject
     //    set { SetPropertyValue(nameof(RegistType), value); }
     //}
 
-    //[VisibleInLookupListView(true)]
-    //[ImmediatePostData]
-    //[ModelDefault("LookupProperty", nameof(Unit.UnitName))]
-    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    //[XafDisplayName("단위"), ToolTip("단위")]
-    //public Unit UnitObject
-    //{
-    //    get { return GetPropertyValue<Unit>(nameof(UnitObject)); }
-    //    set { SetPropertyValue(nameof(UnitObject), value); }
-    //}
+    [VisibleInLookupListView(true)]
+    [ImmediatePostData]
+    [ModelDefault("LookupProperty", nameof(Unit.UnitName))]
+    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [XafDisplayName("단위"), ToolTip("단위")]
+    public Unit UnitObject
+    {
+        get { return GetPropertyValue<Unit>(nameof(UnitObject)); }
+        set { SetPropertyValue(nameof(UnitObject), value); }
+    }
+
     [VisibleInLookupListView(true)]
     [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
     public bool IsEnabled

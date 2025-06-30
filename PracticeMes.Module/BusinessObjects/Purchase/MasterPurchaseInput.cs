@@ -129,7 +129,38 @@ public class MasterPurchaseInput : BaseObject
     public override void AfterConstruction()
     {
         base.AfterConstruction();
+        CreatePurchaseOrederNum();
+        FindMinorCode();
         CreatedDateTime = DateTime.Now;
+    }
+
+    private void CreatePurchaseOrederNum()
+    {
+        string todayPrefix = DateTime.Now.ToString("yyyyMMdd-");
+
+        int maxNumber = new XPCollection<MasterPurchaseOrder>(this.Session)
+         .Where(w => w.PurchaseOrderNumber.StartsWith(todayPrefix))
+         .Select(s => int.TryParse(s.PurchaseOrderNumber[^4..], out var n) ? n : 0)
+         .DefaultIfEmpty(0)
+         .Max();
+
+        PurchaseInputNumber = todayPrefix + (maxNumber + 1).ToString("0000");
+    }
+
+    // 굳이 사용해야 하는가?
+    private void FindMinorCode ()
+    {
+        var majorcode = new XPCollection<UniversalMajorCode>(this.Session)
+            .Where(x => x.MajorCode == "Currency").FirstOrDefault();
+
+        if (majorcode != null) {
+            var mionrcode = new XPCollection<UniversalMinorCode>(this.Session)
+                .Where(x => x.UniversalMajorCodeObject.Oid == majorcode.Oid && 
+                            x.MinorCode == "KRW")
+                .FirstOrDefault();
+
+            Currency = mionrcode;
+        }
     }
     #endregion
 }

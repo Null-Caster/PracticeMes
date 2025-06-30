@@ -40,7 +40,6 @@ public class BusinessPartner : BaseObject
     }
 
     [VisibleInLookupListView(true)]
-    [RuleRequiredField(CustomMessageTemplate = "사업자 등록 번호를 입력하세요.")]
     [XafDisplayName("사업자 등록 번호"), ToolTip("사업자 등록 번호")]
     public string BusinessRegistrationNumber
     {

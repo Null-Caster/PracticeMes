@@ -117,6 +117,24 @@ public class MasterPurchaseOrder : BaseObject
     public override void AfterConstruction()
     {
         base.AfterConstruction();
+        CreatePurchaseOrederNum();
+        CreatedDateTime = DateTime.Now;
+    }
+
+    private void CreatePurchaseOrederNum ()
+    {
+        // 현재 날짜 기준으로 문자열 변환
+        string todayPrefix = DateTime.Now.ToString("yyyyMMdd-");
+
+        // int.TryParse 문자열을 int로 안전하게 변환하는 함수
+        // 변환 실패 시 false, out 매개 변수에 성공값 혹은 0 대입
+        int maxNumber = new XPCollection<MasterPurchaseOrder>(this.Session)
+         .Where(w => w.PurchaseOrderNumber.StartsWith(todayPrefix))
+         .Select(s => int.TryParse(s.PurchaseOrderNumber[^4..], out var n) ? n : 0)
+         .DefaultIfEmpty(0)
+         .Max();
+
+        PurchaseOrderNumber = todayPrefix + (maxNumber + 1).ToString("0000");
     }
     #endregion
 }

@@ -106,7 +106,8 @@ public class DetailPurchaseInput : BaseObject
         {
             // 발주번호가 동일한 품목 입고자료 합계
             var detailPurchaseInputQuantity = new XPCollection<DetailPurchaseInput>(this.Session)
-                .Where(x => x.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid && x.ItemObject?.Oid == this.ItemObject?.Oid)
+                .Where(x => x.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid && 
+                            x.ItemObject?.Oid == this.ItemObject?.Oid)
                 .Sum(x => x.PurchaseInputQuantity);
 
             return detailPurchaseInputQuantity;
@@ -121,12 +122,14 @@ public class DetailPurchaseInput : BaseObject
         {
             // 발주번호 디테일의 품목 발주수량 합계
             var detailPurchaseOrderQuantity = new XPCollection<DetailPurchaseOrder>(this.Session)
-                .Where(x => x.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid && x.ItemObject?.Oid == this.ItemObject?.Oid)
+                .Where(x => x.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid && 
+                            x.ItemObject?.Oid == this.ItemObject?.Oid)
                 .Sum(x => x.PurchaseOrderQuantity);
 
             // 발주번호가 동일한 품목 입고자료 합계
             var detailPurchaseInputQuantity = new XPCollection<DetailPurchaseInput>(this.Session)
-                .Where(x => x.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid && x.ItemObject?.Oid == this.ItemObject?.Oid)
+                .Where(x => x.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid && 
+                            x.ItemObject?.Oid == this.ItemObject?.Oid)
                 .Sum(x => x.PurchaseInputQuantity);
 
             return detailPurchaseOrderQuantity - detailPurchaseInputQuantity;
@@ -190,6 +193,48 @@ public class DetailPurchaseInput : BaseObject
 
         InputDateTime = DateTime.Now;
         CreatedDateTime = DateTime.Now;
+    }
+
+    protected override void OnChanged(string propertyName, object oldValue, object newValue)
+    {
+        base.OnChanged(propertyName, oldValue, newValue);
+        if (this.Session.IsObjectsLoading)
+        {
+            return;
+        }
+
+        switch (propertyName)
+        {
+            case nameof(this.ItemObject):
+                UpdateValuesFromPurchaseOrder();
+                this.PurchaseInputQuantity = this.AvailPurchaseInputQuantity;
+                break;
+
+            case nameof(this.MasterPurchaseInputObject):
+                UpdateValuesFromPurchaseOrder();
+                break;
+
+            case nameof(this.UnitPrice) or nameof(this.PurchaseInputQuantity):
+                if (ItemObject is null || ItemObject.Oid == Guid.Empty) return;
+                this.PurchaseInputPrice = this.UnitPrice * this.PurchaseInputQuantity;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    // 현재 입고 상세 항목에 대해, 연결된 발주서의 상세 발주정보들을 자동으로 설정
+    // 단위, 단가
+    private void UpdateValuesFromPurchaseOrder()
+    {
+        if (MasterPurchaseInputObject == null || ItemObject == null || ItemObject.Oid == Guid.Empty) return;
+
+        var detailOrder = MasterPurchaseInputObject.MasterPurchaseOrderObject?.DetailPurchaseOrderobjects?
+            .FirstOrDefault(x => x.ItemObject.Oid == this.ItemObject.Oid);
+
+        this.UnitObject = detailOrder?.UnitObject;
+        this.UnitPrice = detailOrder?.UnitPrice ?? 0;
     }
     #endregion
 }

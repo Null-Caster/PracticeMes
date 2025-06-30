@@ -90,23 +90,23 @@ public class DetailPurchaseOrder : BaseObject
         set { SetPropertyValue(nameof(VAT), value); }
     }
 
-    //[VisibleInLookupListView(true)]
-    //[XafDisplayName("입고 수량"), ToolTip("입고 수량")]
-    //public double PurchaseInputQuantity
-    //{
-    //    get
-    //    {
-    //        return new XPCollection<DetailPurchaseInput>(this.Session)
-    //            .Where(x => x.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseOrderObject?.Oid
-    //                   && x.ItemObject?.Oid == this.ItemObject?.Oid)
-    //            .Sum(s => s.PurchaseInputQuantity);
-    //    }
-    //}
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("입고 수량"), ToolTip("입고 수량")]
+    public double PurchaseInputQuantity
+    {
+        get
+        {
+            return new XPCollection<DetailPurchaseInput>(this.Session)
+                .Where(x => x.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid == this.MasterPurchaseOrderObject?.Oid
+                       && x.ItemObject?.Oid == this.ItemObject?.Oid)
+                .Sum(s => s.PurchaseInputQuantity);
+        }
+    }
 
     [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]
-    [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
     [ModelDefault("EditMask", "yyyy/MM/dd HH:mm:ss")]
+    [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
     [XafDisplayName("생성 일시"), ToolTip("항목이 생성된 일시입니다.")]
     public DateTime CreatedDateTime
     {
@@ -138,6 +138,28 @@ public class DetailPurchaseOrder : BaseObject
     public override void AfterConstruction()
     {
         base.AfterConstruction();
+        CreatedDateTime = DateTime.Now;
+    }
+    protected override void OnChanged(string propertyName, object oldValue, object newValue)
+    {
+        base.OnChanged(propertyName, oldValue, newValue);
+        if (this.Session.IsObjectsLoading)
+        {
+            return;
+        }
+        switch (propertyName)
+        {
+            case nameof(this.UnitPrice) or nameof(this.PurchaseOrderQuantity):
+                if (ItemObject is null || ItemObject.Oid == Guid.Empty)
+                {
+                    return;
+                }
+                this.PurchaseOrderPrice = this.UnitPrice * this.PurchaseOrderQuantity;
+                this.VAT = PurchaseOrderPrice * 0.1;
+                break;
+            default:
+                break;
+        }
     }
     #endregion
 

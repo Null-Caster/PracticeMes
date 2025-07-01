@@ -18,7 +18,7 @@ namespace PracticeMes.Module.BusinessObjects.Purchase;
 
 [DefaultClassOptions]
 [NavigationItem(false)]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Bottom)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class DetailPurchaseOrder : BaseObject
 {
     #region Properties
@@ -26,6 +26,7 @@ public class DetailPurchaseOrder : BaseObject
     [ImmediatePostData(true)]
     [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [DataSourceCriteria("ItemAccountObject.ItemAccountName == '원자재'")]
     [RuleRequiredField(CustomMessageTemplate = "품목 코드를 입력하세요.")]
     [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
     public Item ItemObject
@@ -54,6 +55,7 @@ public class DetailPurchaseOrder : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [ImmediatePostData(true)]
     [RuleValueComparison(ValueComparisonType.GreaterThanOrEqual, 0, CustomMessageTemplate = "구매수량은 0 이상이어야 합니다.")]
     [XafDisplayName("발주수량"), ToolTip("발주수량")]
     public double PurchaseOrderQuantity
@@ -63,6 +65,7 @@ public class DetailPurchaseOrder : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [ImmediatePostData(true)]
     [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.##")]
     [XafDisplayName("단가"), ToolTip("단가")]
     public double UnitPrice
@@ -156,10 +159,17 @@ public class DetailPurchaseOrder : BaseObject
                 this.PurchaseOrderPrice = this.UnitPrice * this.PurchaseOrderQuantity;
                 this.VAT = PurchaseOrderPrice * 0.1;
                 break;
+            case nameof(ItemObject):
+                if (ItemObject != null)
+                {
+                    this.UnitObject = this.ItemObject?.UnitObject;
+                }
+                break;
             default:
                 break;
         }
     }
+
     #endregion
 
 }

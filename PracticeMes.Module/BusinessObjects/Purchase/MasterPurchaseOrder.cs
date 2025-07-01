@@ -17,7 +17,7 @@ namespace PracticeMes.Module.BusinessObjects.Purchase;
 
 [DefaultClassOptions]
 [NavigationItem("구매 관리"), XafDisplayName("구매발주 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class MasterPurchaseOrder : BaseObject
 {
     #region Properties
@@ -67,8 +67,8 @@ public class MasterPurchaseOrder : BaseObject
     [DataSourceCriteria("IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(WareHouse.WareHouseName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "입고창고를 입력하세요.")]
-    [XafDisplayName("입고창고"), ToolTip("입고창고")]
+    [RuleRequiredField(CustomMessageTemplate = "입고 창고를 입력하세요.")]
+    [XafDisplayName("입고 창고"), ToolTip("입고 창고")]
     public WareHouse WareHouseObject
     {
         get { return GetPropertyValue<WareHouse>(nameof(WareHouseObject)); }
@@ -77,8 +77,8 @@ public class MasterPurchaseOrder : BaseObject
 
     [VisibleInLookupListView(true)]
     [ModelDefault("DisplayFormat", "yyyy/MM/dd")]
-    [RuleRequiredField(CustomMessageTemplate = "납기예정일을 입력하세요.")]
-    [XafDisplayName("납기예정일"), ToolTip("납기예정일")]
+    [RuleRequiredField(CustomMessageTemplate = "납기 예정일을 입력하세요.")]
+    [XafDisplayName("납기 예정일"), ToolTip("납기 예정일")]
     public DateTime DeliveryDateTime
     {
         get { return GetPropertyValue<DateTime>(nameof(DeliveryDateTime)); }
@@ -89,7 +89,7 @@ public class MasterPurchaseOrder : BaseObject
     [ModelDefault("AllowEdit", "False")]
     [ModelDefault("EditMask", "yyyy/MM/dd HH:mm:ss")]
     [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
-    [XafDisplayName("생성일시"), ToolTip("항목이 생성된 일시입니다.")]
+    [XafDisplayName("생성 일시"), ToolTip("항목이 생성된 일시입니다.")]
     public DateTime CreatedDateTime
     {
         get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
@@ -117,11 +117,16 @@ public class MasterPurchaseOrder : BaseObject
     public override void AfterConstruction()
     {
         base.AfterConstruction();
-        CreatePurchaseOrederNum();
-        CreatedDateTime = DateTime.Now;
+
+        if (!IsLoading && !IsSaving)
+        {
+            CreatePurchaseOrederNum();
+            InitialValueSetting();
+        }
     }
 
-    private void CreatePurchaseOrederNum ()
+    // 구매 발주 번호 생성
+    private void CreatePurchaseOrederNum()
     {
         // 현재 날짜 기준으로 문자열 변환
         string todayPrefix = DateTime.Now.ToString("yyyyMMdd-");
@@ -135,6 +140,34 @@ public class MasterPurchaseOrder : BaseObject
          .Max();
 
         PurchaseOrderNumber = todayPrefix + (maxNumber + 1).ToString("0000");
+    }
+
+    // 초기값 세팅
+    private void InitialValueSetting()
+    {
+        // 거래처 기본 세팅
+        if (BusinessPartnerObject == null)
+        {
+            var firstPartner = Session.Query<BusinessPartner>()
+                                      .Where(x => x.IsEnabled)
+                                      .OrderBy(x => x.BusinessPartnerName)
+                                      .FirstOrDefault();
+
+            BusinessPartnerObject = firstPartner;
+        }
+
+        if (WareHouseObject == null)
+        {
+            var firstWareHouse = Session.Query<WareHouse>()
+                          .Where(x => x.IsEnabled)
+                          .OrderBy(x => x.WareHouseName)
+                          .FirstOrDefault();
+
+            WareHouseObject = firstWareHouse;
+        }
+
+        PurchaseOrderDateTime = DateTime.Now;
+        CreatedDateTime = DateTime.Now;
     }
     #endregion
 }

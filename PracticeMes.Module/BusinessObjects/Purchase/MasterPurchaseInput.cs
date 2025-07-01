@@ -17,7 +17,7 @@ namespace PracticeMes.Module.BusinessObjects.Purchase;
 
 [DefaultClassOptions]
 [NavigationItem("구매 관리"), XafDisplayName("구매입고 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
 public class MasterPurchaseInput : BaseObject
 {
     #region Properties
@@ -87,17 +87,6 @@ public class MasterPurchaseInput : BaseObject
     }
 
     [VisibleInLookupListView(true)]
-    [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'Currency' AND IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [XafDisplayName("화폐"), ToolTip("화폐")]
-    public UniversalMinorCode Currency
-    {
-        get { return GetPropertyValue<UniversalMinorCode>(nameof(Currency)); }
-        set { SetPropertyValue(nameof(Currency), value); }
-    }
-
-    [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]
     [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
     [ModelDefault("EditMask", "yyyy/MM/dd HH:mm:ss")]
@@ -130,7 +119,6 @@ public class MasterPurchaseInput : BaseObject
     {
         base.AfterConstruction();
         CreatePurchaseOrederNum();
-        FindMinorCode();
         CreatedDateTime = DateTime.Now;
     }
 
@@ -146,22 +134,6 @@ public class MasterPurchaseInput : BaseObject
          .Max();
 
         PurchaseInputNumber = todayPrefix + (maxNumber + 1).ToString("0000");
-    }
-
-    // 굳이 사용해야 하는가?
-    private void FindMinorCode ()
-    {
-        var majorcode = new XPCollection<UniversalMajorCode>(this.Session)
-            .Where(x => x.MajorCode == "Currency").FirstOrDefault();
-
-        if (majorcode != null) {
-            var mionrcode = new XPCollection<UniversalMinorCode>(this.Session)
-                .Where(x => x.UniversalMajorCodeObject.Oid == majorcode.Oid && 
-                            x.MinorCode == "KRW")
-                .FirstOrDefault();
-
-            Currency = mionrcode;
-        }
     }
     #endregion
 }

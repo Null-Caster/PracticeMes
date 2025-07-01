@@ -20,7 +20,7 @@ namespace PracticeMes.Module.BusinessObjects.Purchase;
 
 [DefaultClassOptions]
 [NavigationItem(false)]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Bottom)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class DetailPurchaseInput : BaseObject
 {
     #region Properties

@@ -149,6 +149,7 @@ namespace PracticeMes.Win.Controllers.Purchase
             }
         }
 
+        // LOT 생성 함수
         private void CreateLotObject(DetailPurchaseInput currentObject)
         {
             LotType lotType = View.ObjectSpace.GetObjects<LotType>()
@@ -168,6 +169,96 @@ namespace PracticeMes.Win.Controllers.Purchase
 
             currentObject.LotObject = lotObject;
         }
+
+        // 시간되면 LotTracking도 이 MES에 맞춰 구현
+
+        //private void CreateLotTrackingObject(DetailPurchaseInput currentObject, DetailPurchaseInput oldObject = null)
+        //{
+        //    var autoInspection = currentObject?.InspectionExecuteType?.CodeName.Trim();
+
+        //    // 기존 랏 트래킹 가져옴
+        //    var matchedLotTracking = View.ObjectSpace.GetObjects<LotTracking>()
+        //        .FirstOrDefault(x => x.LotObject?.LotNumber == currentObject?.LotObject?.LotNumber);
+
+        //    var lotTracking = View.ObjectSpace.CreateObject<LotTracking>();
+
+        //    if (matchedLotTracking != null)
+        //    {
+        //        lotTracking.LotObject = matchedLotTracking.LotObject;
+        //    }
+        //    else
+        //    {
+        //        lotTracking.LotObject = currentObject.LotObject;
+        //    }
+
+        //    lotTracking.ItemObject = currentObject.ItemObject;
+        //    lotTracking.CreationType = currentObject.LotObject?.LotTypeObject?.LotTypeName;
+        //    lotTracking.EventDateTime = DateTime.Now;
+        //    lotTracking.PreviousQuantity = 0;
+        //    lotTracking.ChangeQuantity = currentObject.PurchaseInputQuantity;
+
+        //    if (oldObject != null)
+        //    {
+        //        lotTracking.PreviousQuantity = oldObject.PurchaseInputQuantity;
+        //    }
+
+        //    if (autoInspection == "자동검사")
+        //    {
+        //        lotTracking.StockQuantity = 0;
+        //        lotTracking.ProcessingType = "검사요청";
+        //        lotTracking.ReferenceInfo = $"입고번호 : {currentObject.MasterPurchaseInputObject?.PurchaseInputNumber}, 검사수량 : {currentObject.PurchaseInputQuantity}";
+        //        FindPreLotTracking(currentObject, "검사요청");
+        //    }
+        //    else
+        //    {
+        //        lotTracking.StockQuantity = currentObject.PurchaseInputQuantity;
+        //        lotTracking.ProcessingType = "재고입고";
+        //        lotTracking.ReferenceInfo = $"입고번호 : {currentObject.MasterPurchaseInputObject?.PurchaseInputNumber}, 입고수량 : {currentObject.PurchaseInputQuantity}";
+        //        FindPreLotTracking(currentObject, "재고입고");
+        //    }
+        //}
+
+
+        // 구매 입고 시 검사의 유무 변경해 수정/저장하면 이전에 생성된 다른 종류의 LotTracking 삭제
+        //private void FindPreLotTracking(DetailPurchaseInput currentObject, string PreProcessingType)
+        //{
+        //    var findPreLotTrackingList = View.ObjectSpace.GetObjects<LotTracking>()
+        //        .Where(x => x.LotObject?.Oid == currentObject?.LotObject?.Oid
+        //        && x.ProcessingType != "검사완료"
+        //        ).ToList();
+
+        //    foreach (var preLotTrackingObject in findPreLotTrackingList)
+        //    {
+        //        if (preLotTrackingObject.ProcessingType != PreProcessingType)
+        //        {
+        //            preLotTrackingObject.Delete();
+        //        }
+        //    }
+        //}
+
+        //private static void DeleteLotTrackingObject(DetailPurchaseInput oldDetailPurchaseInput, IObjectSpace newObjectspace)
+        //{
+        //    var oldLotTrackingObjects = newObjectspace.GetObjects<LotTracking>()
+        //                                              .Where(x => x.LotObject?.Oid == oldDetailPurchaseInput?.LotObject?.Oid)
+        //                                              .ToList();
+
+        //    if (oldLotTrackingObjects != null)
+        //    {
+        //        foreach (var oldLotTrackingObject in oldLotTrackingObjects)
+        //        {
+        //            double stockQuantity = oldLotTrackingObject.LotObject.StockQuantity;
+
+        //            if (stockQuantity > 0)
+        //            {
+        //                throw new UserFriendlyException("재고 입고가 진행되어 삭제할 수 없습니다.");
+        //            }
+        //            else
+        //            {
+        //                oldLotTrackingObject.Delete();
+        //            }
+        //        }
+        //    }
+        //}
 
         protected override void OnViewControlsCreated()
         {

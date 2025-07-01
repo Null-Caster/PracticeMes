@@ -35,6 +35,8 @@ public partial class MasterWorkInstructionController : ViewController
         ObjectSpace.Committing += ObjectSpace_Committing;
     }
 
+    private readonly HashSet<Guid> processedMasterOids = new();
+
     private void ObjectSpace_Committing(object sender, CancelEventArgs e)
     {
         try
@@ -57,17 +59,21 @@ public partial class MasterWorkInstructionController : ViewController
                     else // 수정
                     {
                         //CheckIfObjectIsInUse(newObjectSpace, productionPlanning, "수정");
-                  
                     }
-                } else if (modifiedObject is DetailWorkInstruction detail)
+                }
+                else if (modifiedObject is DetailWorkInstruction detail)
                 {
                     var master = detail.MasterWorkInstructionObject;
                     if (master != null && master.Progress?.CodeName == "진행중")
                     {
+                        if (processedMasterOids.Contains(master.Oid)) continue;
+                        processedMasterOids.Add(master.Oid);
+
                         CreateWorkInstructionNumber(View.ObjectSpace, master);
                         AddZeroInstruction(View.ObjectSpace, master);
                     }
-                } else { }
+                }
+                else { }
             }
         }
         catch (UserFriendlyException ex)
@@ -80,7 +86,7 @@ public partial class MasterWorkInstructionController : ViewController
         }
     }
 
-    // DetailWorkInstruction 생성 메서드
+    // 작업 지시 상세 (DetailWorkInstruction) 생성 메서드
     private static void CreateDetailWorkInstructions(IObjectSpace objectSpace, MasterWorkInstruction masterInstruction)
     {
         var MasterPlanning = masterInstruction.MasterProductionPlanningObject;
@@ -88,6 +94,7 @@ public partial class MasterWorkInstructionController : ViewController
         if (MasterPlanning?.ItemObject == null || MasterPlanning.ItemObject.ItemGroupObject == null)
             return;
 
+        // 라우팅 테이블 가져옴
         var routingList = objectSpace.GetObjects<DetailItemTypeRouting>()
             .Where(r => r.MasterItemTypeRoutingObject?.ItemType?.Oid == MasterPlanning?.ItemObject?.ItemAccountObject?.Oid
                      && r.MasterItemTypeRoutingObject?.ItemGroupObject?.Oid == MasterPlanning?.ItemObject?.ItemGroupObject?.Oid)

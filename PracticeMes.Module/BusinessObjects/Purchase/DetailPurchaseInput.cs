@@ -80,7 +80,6 @@ public class DetailPurchaseInput : BaseObject
     [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'InspectionExecuteType' AND IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "검사요청을 입력하세요.")]
     [XafDisplayName("검사요청"), ToolTip("검사요청")]
     public UniversalMinorCode InspectionExecuteType
     {

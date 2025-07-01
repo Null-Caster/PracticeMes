@@ -25,6 +25,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
         [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
         [RuleRequiredField(CustomMessageTemplate = "수주 번호를 입력하세요.")]
         [XafDisplayName("수주 번호"), ToolTip("수주 번호")]
+        [ImmediatePostData(true)]
         public DetailSalesOrder DetailSalesOrderObject
         {
             get { return GetPropertyValue<DetailSalesOrder>(nameof(DetailSalesOrderObject)); }
@@ -48,7 +49,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
         [XafDisplayName("수주 수량"), ToolTip("수주 수량")]
         public double SalesOrderQuantity
         {
-            get { return DetailSalesOrderObject.SalesOrderQuantity; }
+            get { return DetailSalesOrderObject?.SalesOrderQuantity ?? 0; }
         }
 
         [VisibleInLookupListView(true)]

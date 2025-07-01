@@ -75,7 +75,6 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         }
 
         [VisibleInLookupListView(true)]
-        // [DataSourceCriteria("IsEnabled == True AND DepartmentObject.DepartmentCode='Production'")]
         [ModelDefault("LookupProperty", nameof(Employee.EmployeeName))]
         [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
         [XafDisplayName("생산담당자"), ToolTip("생산담당자")]
@@ -96,7 +95,6 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
             get { return GetPropertyValue<WareHouse>(nameof(WareHouseObject)); }
             set { SetPropertyValue(nameof(WareHouseObject), value); }
         }
-
 
         [VisibleInLookupListView(true)]
         [ModelDefault("DisplayFormat", "yyyy/MM/dd")]
@@ -155,6 +153,7 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
             set { SetPropertyValue(nameof(CreatedDateTime), value); }
         }
 
+        // 아래 쪽에 존재하는 작업 지시 상세
         [Association(@"DetailWorkInstructionReferencesMasterWrokInstruction")]
         [Browsable(false)]
         public MasterWorkInstruction MasterWorkInstructionObject

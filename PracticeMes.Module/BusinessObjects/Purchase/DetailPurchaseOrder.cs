@@ -25,7 +25,6 @@ public class DetailPurchaseOrder : BaseObject
     [VisibleInLookupListView(true)]
     [ImmediatePostData(true)]
     [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
-    [DataSourceCriteria("ItemAccountObject.ItemAccountName == '원자재'")]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "품목 코드를 입력하세요.")]
     [XafDisplayName("품목 코드"), ToolTip("품목 코드")]

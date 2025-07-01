@@ -43,40 +43,37 @@ namespace PracticeMes.Win.Controllers.WorkResult
             {
                 if (modifiedObject is MiddleWorkResult middleWorkResult)
                 {
-                    // 작업지시수량이 다르면 시리얼 번호를 하나만 발행함. 얜 불량나면 다음공정이 안됨.
-
                     var oldMiddleWorkResult = (MiddleWorkResult)newObjectSpace.GetObjectByKey(typeof(MiddleWorkResult), middleWorkResult.Oid);
-                    // 이전공정이 존재하지 않거나 다음공정이 있는경우 등록 불가능
-                    // 다음공정 라우팅 인덱스
-                    var nextRoutingIndex = middleWorkResult?.DetailWorkInstructionObject?.RoutingIndex + 1;
+                    // 이전 공정이 존재하지 않거나 다음공정이 있는 경우 등록 불가능
+
+                    // 다음 공정 라우팅 인덱스
+                    //var nextRoutingIndex = middleWorkResult?.DetailWorkInstructionObject?.RoutingIndex + 1;
+
                     // 중간공정 등록되었을 때,
-                    var nextMiddleWorkResults = View.ObjectSpace.GetObjects<MiddleWorkResult>().Where(x => (x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == nextRoutingIndex
-                                                                                                     && x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == middleWorkResult?.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid);
-                    // 최종공정 등록되어있을 때,
-                    //var nextFinalWorkResults = View.ObjectSpace.GetObjects<FinalWorkResultSplit>().Where(x => (x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == nextRoutingIndex
-                    //                                                                                     && x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == middleWorkResult?.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid);
-                    // 삭제시에는 시리얼자료가 다 사라져서 삭제되기 전 자료로 비교해야함.
-                    var currentSerials = oldMiddleWorkResult?.AssySerialProductObjects?.Select(x => x.SerialNumber).ToList() ?? new List<string>();
-                    bool nextMiddleContainSerial = nextMiddleWorkResults?
-                                                   .Any(result => result.AssySerialProductObjects?
-                                                   .Any(x => currentSerials.Contains(x.SerialNumber)) ?? false) ?? false;
+                    //var nextMiddleWorkResults = View.ObjectSpace.GetObjects<MiddleWorkResult>()
+                    //    .Where(x => (x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == nextRoutingIndex &&
+                    //                 x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == middleWorkResult?.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid);
 
-                    //bool nextFinalContainSerial = nextFinalWorkResults?.Any(x => currentSerials.Contains(x.LotObject?.LotNumber)) ?? false;
+                    // 삭제 시 시리얼 자료가 다 사라져서 삭제되기 전 자료로 비교해야함.
+                    var currentSerials = oldMiddleWorkResult?.AssySerialProductObjects?
+                        .Select(x => x.SerialNumber)
+                        .ToList() ?? new List<string>();
 
-                    //if (nextFinalContainSerial || nextMiddleContainSerial)
-                    //{
-                    //    throw new UserFriendlyException("다음 공정에 시리얼번호가 등록되어 내용을 등록, 수정할 수 없습니다.");
-                    //}
+                    //bool nextMiddleContainSerial = nextMiddleWorkResults?
+                    //                               .Any(result => result.AssySerialProductObjects?
+                    //                               .Any(x => currentSerials.Contains(x.SerialNumber)) ?? false) ?? false;
+
 
                     var preRoutingIndex = middleWorkResult?.DetailWorkInstructionObject?.RoutingIndex - 1;
 
-                    // 중간공정 등록되어있을 때,
-                    var preMiddleWorkResults = View.ObjectSpace.GetObjects<MiddleWorkResult>().Where(x => (x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == preRoutingIndex
-                                                                                                    && x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == middleWorkResult.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid);
+                    // 중간공정 등록되어 있을 때,
+                    var preMiddleWorkResults = View.ObjectSpace.GetObjects<MiddleWorkResult>()
+                        .Where(x => (x.DetailWorkInstructionObject?.RoutingIndex ?? 0) == preRoutingIndex &&
+                                     x.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid == middleWorkResult.DetailWorkInstructionObject?.MasterWorkInstructionObject?.Oid);
 
-                    if (middleWorkResult?.DetailWorkInstructionObject?.RoutingIndex != 1
-                        && preMiddleWorkResults.Count() == 0
-                        && !preMiddleWorkResults.Any(x => x.DetailWorkInstructionQuantity != x.WorkInstructionQuantity))
+                    if (middleWorkResult?.DetailWorkInstructionObject?.RoutingIndex != 1 &&
+                        preMiddleWorkResults.Count() == 0 &&
+                        !preMiddleWorkResults.Any(x => x.DetailWorkInstructionQuantity != x.WorkInstructionQuantity))
                     {
                         throw new UserFriendlyException("이전 공정이 존재하지않아 내용을 등록, 수정할 수 없습니다.");
                     }
@@ -85,6 +82,7 @@ namespace PracticeMes.Win.Controllers.WorkResult
                     {
                         throw new UserFriendlyException("작업지시가 완료되어 수정이 불가능합니다.");
                     }
+
                     if (View.ObjectSpace.IsNewObject(middleWorkResult)) // 신규인 경우
                     {
                         // 생산수량 > 가능수량(작지수량) -> 에러
@@ -94,12 +92,12 @@ namespace PracticeMes.Win.Controllers.WorkResult
                         }
                         if (middleWorkResult.GoodQuantity > 0)
                         {
-                            // AssySerialProduct 데이터 생성----------------------------------------------------- 999 이상생산 불가능!!
                             var lastIndex = 0;
                             lastIndex = Convert.ToInt32(View.ObjectSpace.GetObjects<MiddleWorkResult>()
                                             .Where(x => x.DetailWorkInstructionObject?.Oid == middleWorkResult?.DetailWorkInstructionObject.Oid
                                             && x.DetailWorkInstructionObject?.RoutingIndex == middleWorkResult?.DetailWorkInstructionObject.RoutingIndex)
-                                            .SelectMany(x => x.AssySerialProductObjects ?? Enumerable.Empty<AssySerialProduct>()).Select(x => x.SerialNumber.Substring(x.SerialNumber.Length - 3, 3))
+                                            .SelectMany(x => x.AssySerialProductObjects ?? Enumerable.Empty<AssySerialProduct>())
+                                            .Select(x => x.SerialNumber.Substring(x.SerialNumber.Length - 3, 3))
                                             .DefaultIfEmpty("000")  // 결과가 없을 경우 기본값
                                             .Max());
 
@@ -110,6 +108,7 @@ namespace PracticeMes.Win.Controllers.WorkResult
                                     var serialProduct = View.ObjectSpace.CreateObject<AssySerialProduct>();
                                     serialProduct.MiddleWorkResultObject = middleWorkResult;
                                     serialProduct.SerialNumber = CreatedSerialNumberProduct(middleWorkResult, i);
+                                    serialProduct.CreatedDateTime = DateTime.Now;
                                     serialProduct.WorkProcessDefectQuantity = preMiddleWorkResults.SelectMany(x => x.AssySerialProductObjects ?? Enumerable.Empty<AssySerialProduct>()).FirstOrDefault(x => x.SerialNumber == serialProduct?.SerialNumber)?.WorkProcessDefectQuantity ?? 0;
 
                                 }
@@ -120,7 +119,6 @@ namespace PracticeMes.Win.Controllers.WorkResult
                     {
                         if (middleWorkResult.IsDeleted) // 삭제
                         {
-
                             var assySerialProductObjects = newObjectSpace.GetObjects<MiddleWorkResult>().Where(x => x.Oid == middleWorkResult.Oid).FirstOrDefault().AssySerialProductObjects.ToList();
                             foreach (var assySerialProductObject in assySerialProductObjects)
                             {
@@ -148,7 +146,7 @@ namespace PracticeMes.Win.Controllers.WorkResult
                                 }
                             }
 
-                            // 저장된거 다시삭제 후 다시 만들기 스킬
+                            // 저장된 거 다시 삭제 후 다시 만들기 스킬
                             var middleWorkResultOldValue = newObjectSpace.GetObjects<MiddleWorkResult>().Where(w => w.Oid == middleWorkResult.Oid).FirstOrDefault();
                             // 생산수량 > 가능수량(작지수량)->에러
                             if (middleWorkResult.GoodQuantity > middleWorkResultOldValue.AvailableGoodQuantity + middleWorkResultOldValue.GoodQuantity)
@@ -174,6 +172,7 @@ namespace PracticeMes.Win.Controllers.WorkResult
                                         var serialProduct = View.ObjectSpace.CreateObject<AssySerialProduct>();
                                         serialProduct.MiddleWorkResultObject = middleWorkResult;
                                         serialProduct.SerialNumber = CreatedSerialNumberProduct(middleWorkResult, i);
+                                        serialProduct.CreatedDateTime = DateTime.Now;
                                         serialProduct.WorkProcessDefectQuantity = preMiddleWorkResults.SelectMany(x => x.AssySerialProductObjects ?? Enumerable.Empty<AssySerialProduct>()).FirstOrDefault(x => x.SerialNumber == serialProduct?.SerialNumber)?.WorkProcessDefectQuantity ?? 0;
 
                                     }

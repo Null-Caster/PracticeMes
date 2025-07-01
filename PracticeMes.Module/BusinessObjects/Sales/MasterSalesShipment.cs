@@ -141,6 +141,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             }
         }
 
+        // 수주 번호랑 같은 방식?
         private void CreateSalesOrderNumber()
         {
             var salesShipmentDate = SalesShipmentDateTime.ToString("yyyyMMdd");

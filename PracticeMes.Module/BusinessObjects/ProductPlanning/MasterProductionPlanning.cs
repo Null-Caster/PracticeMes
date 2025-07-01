@@ -202,7 +202,7 @@ public class MasterProductionPlanning : BaseObject
         CreateProductionPlanningNumber();
     }
 
-    // 생산 계획 번호 생성 (수주 번호랑 방식 같음??)
+    // 생산 계획 번호 생성 (수주 번호랑 방식 같음)
     private void CreateProductionPlanningNumber()
     {
         var productPlanningDateTime = DateTime.Now.ToString("yyyyMMdd"); ;

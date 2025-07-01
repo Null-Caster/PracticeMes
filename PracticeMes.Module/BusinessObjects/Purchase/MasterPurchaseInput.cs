@@ -34,6 +34,7 @@ public class MasterPurchaseInput : BaseObject
     [ModelDefault("LookupProperty", nameof(MasterPurchaseOrder.PurchaseOrderNumber))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [XafDisplayName("구매발주번호"), ToolTip("구매발주번호")]
+    [ImmediatePostData(true)]
     public MasterPurchaseOrder MasterPurchaseOrderObject
     {
         get { return GetPropertyValue<MasterPurchaseOrder>(nameof(MasterPurchaseOrderObject)); }
@@ -89,7 +90,6 @@ public class MasterPurchaseInput : BaseObject
     [DataSourceCriteria("UniversalMajorCodeObject.MajorCode == 'Currency' AND IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "화폐를 입력하세요.")]
     [XafDisplayName("화폐"), ToolTip("화폐")]
     public UniversalMinorCode Currency
     {

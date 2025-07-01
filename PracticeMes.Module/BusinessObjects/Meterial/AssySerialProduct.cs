@@ -78,7 +78,8 @@ namespace PracticeMes.Module.BusinessObjects.Meterial
             }
         }
 
-        [VisibleInLookupListView(true)]
+        //[VisibleInLookupListView(true)]
+        [Browsable(false)]
         [ModelDefault("AllowEdit", "False")]
         [XafDisplayName("불량수량(공정)"), ToolTip("불량수량(공정)")]
         public double WorkProcessDefectQuantity

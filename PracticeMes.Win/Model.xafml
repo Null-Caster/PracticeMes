@@ -46,17 +46,23 @@
         </Items>
       </Item>
       <Item Id="공통 정보" Visible="False" Index="2" />
-      <Item Id="생산 계획 관리">
-        <Items>
-          <Item Id="MasterWorkInstruction_ListView" ImageName="TableProperties" />
-        </Items>
-      </Item>
-      <Item Id="생산 정보" Visible="False" />
-      <Item Id="영업 관리">
+      <Item Id="영업 관리" Index="3">
         <Items>
           <Item Id="MasterSalesOrder_ListView" ImageName="BO_Sale_Item" />
         </Items>
       </Item>
+      <Item Id="생산 계획 관리" Index="4">
+        <Items>
+          <Item Id="MasterWorkInstruction_ListView" ImageName="TableProperties" />
+        </Items>
+      </Item>
+      <Item Id="공정 관리" Index="5">
+        <Items>
+          <Item Id="DetailWorkInstruction_ListView" Visible="False" />
+          <Item Id="MasterWorkProcessDefect_ListView" Visible="False" />
+        </Items>
+      </Item>
+      <Item Id="생산 정보" Visible="False" />
       <Item Id="품목 정보" Visible="False" />
       <Item Id="품질 정보" Visible="False" />
       <Item Id="Default" Visible="False" />

@@ -86,11 +86,6 @@ namespace PracticeMes.Win.Controllers.Purchase
             {
                 throw new UserFriendlyException(ex.Message);
             }
-            finally
-            {
-
-            }
-            throw new NotImplementedException();
         }
 
         private static void CheckIfObjectIsInUse(IObjectSpace newObjectSpace, MasterPurchaseOrder currentMasterPurchaseOrder, string action)

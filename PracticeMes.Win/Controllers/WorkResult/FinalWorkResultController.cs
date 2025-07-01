@@ -79,7 +79,7 @@ namespace PracticeMes.Win.Controllers.WorkResult
         private void CreateLotObject(FinalWorkResult currentObject)
         {
 
-            var lotType = View.ObjectSpace.GetObjects<LotType>().FirstOrDefault(x => x.LotTypeCode == "I") ?? throw new UserFriendlyException("LotTypeCode가 'I'인 LotType이 존재하지 않습니다.");
+            var lotType = View.ObjectSpace.GetObjects<LotType>().FirstOrDefault(x => x.LotTypeCode == "P") ?? throw new UserFriendlyException("LotTypeCode가 'I'인 LotType이 존재하지 않습니다.");
             var lotObject = View.ObjectSpace.CreateObject<Lot>();
             lotObject.LotTypeObject = lotType;
             lotObject.FactoryObject = currentObject?.DetailWorkInstructionObject?.MasterWorkInstructionObject?.MasterProductionPlanningObject?.FactoryObject;

@@ -21,11 +21,10 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo
     [Appearance("Level3", AppearanceItemType.ViewItem, "Level == 3", TargetItems = "*", FontColor = "Green")]
     [Appearance("Level4", AppearanceItemType.ViewItem, "Level == 4", TargetItems = "*", FontColor = "Red")]
     [Appearance("Level5", AppearanceItemType.ViewItem, "Level == 5", TargetItems = "*", FontColor = "Purple")]
-    [NavigationItem("품목 정보")]
-    [XafDisplayName("BOM 등록 상세")]
+    [NavigationItem("품목 정보"), XafDisplayName("BOM 등록 상세")]
     [DefaultClassOptions]
     [ImageName("InsertTreeView")]
-    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.Top)]
+    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
     [Persistent(nameof(AssemblyBOM))]
     public class AssemblyBOM : BaseObject, ITreeNode
     {
@@ -46,12 +45,23 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo
             get { return GetPropertyValue<Item>(nameof(ItemObject)); }
             set { SetPropertyValue(nameof(ItemObject), value); }
         }
+
         [VisibleInLookupListView(true)]
         [XafDisplayName("품목 이름"), ToolTip("품목 이름")]
         public string ItemName
         {
             get { return this.ItemObject?.ItemName; }
         }
+
+        [VisibleInLookupListView(true)]
+        [ModelDefault("LookupProperty", nameof(ItemAccount.ItemAccountName))]
+        [XafDisplayName("품목계정"), ToolTip("품목계정")]
+
+        public ItemAccount ItemAccountObject
+        {
+            get { return ItemObject.ItemAccountObject; }
+        }
+
         [VisibleInLookupListView(true)]
         [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.0")]
         [XafDisplayName("BOM 수량"), ToolTip("BOM 수량")]
@@ -60,6 +70,15 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo
             get { return Math.Round(GetPropertyValue<double>(nameof(BOMQuantity)), 1); }
             set { SetPropertyValue(nameof(BOMQuantity), Math.Round(value, 1)); }
         }
+
+        [VisibleInLookupListView(true)]
+        [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.###")]
+        [XafDisplayName("단가"), ToolTip("단가")]
+        public double UnitPrice
+        {
+            get { return ItemObject?.UnitPrice ?? 0; }
+        }
+
         [VisibleInLookupListView(true)]
         [Browsable(false)]
         [XafDisplayName("노드 이름"), ToolTip("노드 이름")]
@@ -81,33 +100,24 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo
             set { SetPropertyValue(nameof(Parent), value); }
         }
 
-        [VisibleInDetailView(false)]
-        [VisibleInLookupListView(false)]
-        [VisibleInListView(false)]
-        [XafDisplayName("부모 노드 문자열"), ToolTip("부모 노드 문자열")]
-        public string ParentString
-        {
-            get { return this.Parent == null ? string.Empty : Parent.Oid.ToString(); }
-        }
+        //[VisibleInDetailView(false)]
+        //[VisibleInLookupListView(false)]
+        //[VisibleInListView(false)]
+        //[XafDisplayName("부모 노드 문자열"), ToolTip("부모 노드 문자열")]
+        //public string ParentString
+        //{
+        //    get { return this.Parent == null ? string.Empty : Parent.Oid.ToString(); }
+        //}
 
-        [VisibleInDetailView(false)]
-        [VisibleInLookupListView(false)]
-        [VisibleInListView(false)]
-        [XafDisplayName("자신 노드 문자열"), ToolTip("자신 노드 문자열")]
-        public string SelfString
-        {
-            get { return this == null ? string.Empty : this.Oid.ToString(); }
-        }
-        [VisibleInLookupListView(true)]
-        [ModelDefault("AllowEdit", "False")]
-        [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
-        [ModelDefault("EditMask", "yyyy/MM/dd HH:mm:ss")]
-        [XafDisplayName("생성 일시"), ToolTip("항목이 생성된 일시입니다.")]
-        public DateTime CreatedDateTime
-        {
-            get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
-            set { SetPropertyValue(nameof(CreatedDateTime), value); }
-        }
+        //[VisibleInDetailView(false)]
+        //[VisibleInLookupListView(false)]
+        //[VisibleInListView(false)]
+        //[XafDisplayName("자신 노드 문자열"), ToolTip("자신 노드 문자열")]
+        //public string SelfString
+        //{
+        //    get { return this == null ? string.Empty : this.Oid.ToString(); }
+        //}
+
         [VisibleInLookupListView(true)]
         [XafDisplayName("활성화 여부"), ToolTip("활성화 여부")]
         public bool IsEnabled
@@ -122,6 +132,17 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo
         {
             get { return GetPropertyValue<string>(nameof(Remark)); }
             set { SetPropertyValue(nameof(Remark), value); }
+        }
+
+        [VisibleInLookupListView(true)]
+        [ModelDefault("AllowEdit", "False")]
+        [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
+        [ModelDefault("EditMask", "yyyy/MM/dd HH:mm:ss")]
+        [XafDisplayName("생성 일시"), ToolTip("항목이 생성된 일시입니다.")]
+        public DateTime CreatedDateTime
+        {
+            get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
+            set { SetPropertyValue(nameof(CreatedDateTime), value); }
         }
 
         [VisibleInDetailView(false)]

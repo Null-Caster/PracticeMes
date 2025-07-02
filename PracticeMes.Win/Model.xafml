@@ -22,6 +22,7 @@
               <Item Id="품목 계정 등록" ImageName="Action_ModelDifferences_Create" Caption="품목 계정 등록" ViewId="ItemAccount_ListView" IsNewNode="True" />
               <Item Id="품목 그룹 등록" ImageName="Action_ModelDifferences_Create" Caption="품목 그룹 등록" ViewId="ItemGroup_ListView" IsNewNode="True" />
               <Item Id="품목 등록" ImageName="Actions_Rating" Caption="품목 등록" ViewId="Item_ListView" IsNewNode="True" />
+              <Item Id="BOM 등록" ViewId="ProductBOM_ListView" IsNewNode="True" />
             </Items>
           </Item>
           <Item Id="생산 정보" ImageName="BO_Folder" Caption="생산 정보" Index="2" Visible="True" IsNewNode="True">
@@ -80,6 +81,15 @@
     <SchemaModule Name="SystemWindowsFormsModule" Version="23.1.9.0" IsNewNode="True" />
   </SchemaModules>
   <Views>
+    <DetailView Id="AssemblyBOM_DetailView">
+      <Layout>
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="SimpleEditors">
+            <LayoutGroup Id="AssemblyBOM" Caption="BOM 등록 상세" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
     <DetailView Id="BusinessPartner_DetailView">
       <Layout>
         <LayoutGroup Id="Main">
@@ -107,6 +117,10 @@
         </LayoutGroup>
       </Layout>
     </DetailView>
+    <ListView Id="DetailProductionPlanning_Children_ListView" AllowDelete="False" AllowLink="False" AllowNew="False" />
+    <DetailView Id="DetailProductionPlanning_DetailView" AllowNew="False" AllowEdit="False" AllowDelete="False" />
+    <ListView Id="DetailProductionPlanning_ListView" AllowDelete="False" AllowLink="False" AllowNew="False" />
+    <ListView Id="DetailProductionPlanning_LookupListView" AllowDelete="False" AllowLink="False" AllowNew="False" />
     <DetailView Id="Employee_DetailView">
       <Layout>
         <LayoutGroup Id="Main">
@@ -125,6 +139,16 @@
         </LayoutGroup>
       </Layout>
     </DetailView>
+    <ListView Id="MasterProductionPlanning_DetailProductionPlannings_ListView" AllowDelete="False" AllowLink="False" AllowNew="False" />
+    <DetailView Id="MasterProductionPlanning_DetailView">
+      <Layout>
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="SimpleEditors">
+            <LayoutGroup Id="MasterProductionPlanning" Caption="생산 계획 등록" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
     <DetailView Id="MasterPurchaseInput_DetailView">
       <Layout>
         <LayoutGroup Id="Main">
@@ -139,6 +163,15 @@
         <LayoutGroup Id="Main">
           <LayoutGroup Id="SimpleEditors">
             <LayoutGroup Id="MasterPurchaseOrder" Caption="구매 발주 등록" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <DetailView Id="ProductBOM_DetailView">
+      <Layout>
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="SimpleEditors">
+            <LayoutGroup Id="ProductBOM" Caption="BOM 등록" />
           </LayoutGroup>
         </LayoutGroup>
       </Layout>

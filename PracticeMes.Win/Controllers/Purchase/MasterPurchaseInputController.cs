@@ -45,6 +45,8 @@ namespace PracticeMes.Win.Controllers.Purchase
                     {
                         // GetObjectByKey: 단일 객체 조회 시 가장 효율이 좋음(XAF/XPO)
                         DetailPurchaseInput oldDetailPurchaseInput = (DetailPurchaseInput)newObjectspace.GetObjectByKey(typeof(DetailPurchaseInput), detailPurchaseInput.Oid);
+                        // 해당 객체의 Lot 가져오기
+                        Lot oldLotObject = (Lot)newObjectspace.GetObjectByKey(typeof(Lot), oldDetailPurchaseInput.LotObject.Oid);
 
                         if (View.ObjectSpace.IsNewObject(detailPurchaseInput))
                         {
@@ -54,22 +56,12 @@ namespace PracticeMes.Win.Controllers.Purchase
                         {
                             if (oldDetailPurchaseInput != null)
                             {
-                                var oldLotObject = newObjectspace.GetObjects<Lot>()
-                                    .Where(x => x?.Oid == oldDetailPurchaseInput?.LotObject?.Oid)
-                                    .FirstOrDefault();
-
                                 if (oldLotObject != null)
                                 {
                                     if (oldLotObject.InputQuantity > 0 ||
                                         oldLotObject.DefectQuantity > 0 ||
                                         oldLotObject.ReleaseQuantity > 0 ||
                                         oldLotObject.ReturnQuantity > 0
-                                        //oldLotObject.RejectDefectQuantity > 0 ||
-                                        //oldLotObject.RecycleDefectQuantity > 0 ||
-                                        //oldLotObject.MeterialReleaseQuantity > 0 ||
-                                        //oldLotObject.MeterialRestockingQuantity > 0 ||
-                                        //oldLotObject.StockMoveQuantity > 0 ||
-                                        //oldLotObject.StockChangeQuantity > 0
                                         )
                                     {
                                         throw new UserFriendlyException("로트가 사용되어 삭제 할 수 없습니다.");
@@ -99,40 +91,34 @@ namespace PracticeMes.Win.Controllers.Purchase
 
                                 if (OldDetailPurchaseOrderQuantity < detailPurchaseInput.PurchaseInputQuantity - OldDetailPurchaseInputQuantity)
                                 {
-                                    throw new UserFriendlyException("발주수량을 초과하여 입고 불가능합니다.");
+                                    throw new UserFriendlyException("발주 수량보다 많은 수량을 입고할 수 없습니다.");
                                 }
 
-                                var oldLotObject = newObjectspace.GetObjects<Lot>()
-                                    .Where(x => x?.Oid == oldDetailPurchaseInput?.LotObject?.Oid)
-                                    .FirstOrDefault();
-
-                                if (oldLotObject != null)
+                                if (oldDetailPurchaseInput?.LotObject?.Oid != null)
                                 {
-                                    if (oldLotObject.InputQuantity > 0 ||
-                                        oldLotObject.ReleaseQuantity > 0 ||
-                                        oldLotObject.ReturnQuantity > 0
-                                        //oldLotObject.RejectDefectQuantity > 0 ||
-                                        //oldLotObject.RecycleDefectQuantity > 0 ||
-                                        //oldLotObject.MeterialReleaseQuantity > 0 ||
-                                        //oldLotObject.MeterialRestockingQuantity > 0 ||
-                                        //oldLotObject.StockMoveQuantity > 0 ||
-                                        //oldLotObject.StockChangeQuantity > 0
-                                        )
+                                    if (oldLotObject != null)
                                     {
-                                        throw new UserFriendlyException("로트가 사용되어 수정할 수 없습니다.");
-                                    }
-                                    else
-                                    {
-                                        // 기존 Lot 수정
-                                        var detailPurchaseInputInNewSpace = newObjectspace.GetObject(detailPurchaseInput);
+                                        if (oldLotObject.InputQuantity > 0 ||
+                                            oldLotObject.ReleaseQuantity > 0 ||
+                                            oldLotObject.ReturnQuantity > 0
+                                            )
+                                        {
+                                            throw new UserFriendlyException("로트가 사용되어 수정할 수 없습니다.");
+                                        }
+                                        else
+                                        {
+                                            // 기존 Lot 수정
+                                            var detailPurchaseInputInNewSpace = newObjectspace.GetObject(detailPurchaseInput);
 
-                                        oldLotObject.UnitObject = newObjectspace.GetObject(detailPurchaseInput.UnitObject);
-                                        oldLotObject.ItemAccountObject = newObjectspace.GetObject(detailPurchaseInput.ItemObject?.ItemAccountObject);
-                                        oldLotObject.CreateQuantity = detailPurchaseInput?.PurchaseInputQuantity ?? 0.0;
+                                            oldLotObject.UnitObject = newObjectspace.GetObject(detailPurchaseInput.UnitObject);
+                                            oldLotObject.ItemAccountObject = newObjectspace.GetObject(detailPurchaseInput.ItemObject?.ItemAccountObject);
+                                            oldLotObject.CreateQuantity = detailPurchaseInput?.PurchaseInputQuantity ?? 0.0;
 
-                                        detailPurchaseInputInNewSpace.LotObject = oldLotObject;
+                                            detailPurchaseInputInNewSpace.LotObject = oldLotObject;
+                                        }
                                     }
                                 }
+
                             }
                         }
                     }

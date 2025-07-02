@@ -122,6 +122,22 @@ public class MasterPurchaseInput : BaseObject
         CreatedDateTime = DateTime.Now;
     }
 
+    protected override void OnChanged(string propertyName, object oldValue, object newValue)
+    {
+        base.OnChanged(propertyName, oldValue, newValue);
+
+        if (this.Session.IsObjectsLoading) return;
+
+        switch (propertyName)
+        {
+            case nameof(MasterPurchaseOrderObject):
+                this.EmployeeObject = MasterPurchaseOrderObject.EmployeeObject;
+                break;
+            default:
+                break;
+        }
+    }
+
     // 구매 입고 번호 생성
     private void CreatePurchaseOrederNum()
     {

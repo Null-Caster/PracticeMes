@@ -21,6 +21,7 @@ namespace PracticeMes.Module.BusinessObjects.Purchase;
 public class MasterPurchaseOrder : BaseObject
 {
     #region Properties
+    [Index(0)]
     [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]
     [RuleUniqueValue(CustomMessageTemplate = "구매발주번호가 중복되었습니다.")]
@@ -155,7 +156,7 @@ public class MasterPurchaseOrder : BaseObject
 
             BusinessPartnerObject = firstPartner;
         }
-
+        // 입고 창고 기본 세팅
         if (WareHouseObject == null)
         {
             var firstWareHouse = Session.Query<WareHouse>()

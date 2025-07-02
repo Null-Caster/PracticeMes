@@ -48,6 +48,7 @@ public class DetailPurchaseInput : BaseObject
 
     [VisibleInLookupListView(true)]
     [ImmediatePostData(true)]
+    [DataSourceProperty(nameof(ItemObjectDataSource))]
     [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "품목코드을 입력하세요.")]
@@ -56,6 +57,36 @@ public class DetailPurchaseInput : BaseObject
     {
         get { return GetPropertyValue<Item>(nameof(ItemObject)); }
         set { SetPropertyValue(nameof(ItemObject), value); }
+    }
+
+    [Browsable(false)]
+    public string ItemCode
+    {
+        get { return this.ItemObject?.ItemCode; }
+    }
+
+    [Browsable(false)]
+    public XPCollection<Item> ItemObjectDataSource
+    {
+        get
+        {
+            var masterInputOid = MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid;
+            // DetailPurchaseOrder 에서 Oid 리스트 뽑고
+            var itemOids = new XPCollection<DetailPurchaseOrder>(Session)
+                .Where(d => d.MasterPurchaseOrderObject.Oid == masterInputOid)
+                .Select(d => d.ItemObject.Oid)
+                .Distinct()
+                .ToList();
+
+            if (masterInputOid != null)
+            {
+                return new XPCollection<Item>(
+                    Session,
+                    new InOperator("Oid", itemOids)
+                );
+            }
+            return null;
+        }
     }
 
     [VisibleInLookupListView(true)]
@@ -136,6 +167,7 @@ public class DetailPurchaseInput : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [ImmediatePostData(true)]
     [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.###")]
     [RuleValueComparison(ValueComparisonType.GreaterThanOrEqual, 0, CustomMessageTemplate = "구매입고 수량은 0 이상이어야 합니다.")]
     [XafDisplayName("구매입고 수량"), ToolTip("구매입고 수량")]
@@ -190,8 +222,7 @@ public class DetailPurchaseInput : BaseObject
     {
         base.AfterConstruction();
 
-        InputDateTime = DateTime.Now;
-        CreatedDateTime = DateTime.Now;
+        InitialValueSetting();
     }
 
     protected override void OnChanged(string propertyName, object oldValue, object newValue)
@@ -223,7 +254,24 @@ public class DetailPurchaseInput : BaseObject
         }
     }
 
-    // 현재 입고 상세 항목에 대해, 연결된 발주서의 상세 발주정보들을 자동으로 설정
+    private void InitialValueSetting()
+    {
+        // 검사유형 기본 세팅
+        if (InspectionExecuteType == null)
+        {
+            var firstInspectionExecuteType = Session.Query<UniversalMinorCode>()
+                                      .Where(x => x.IsEnabled && 
+                                                  x.UniversalMajorCodeObject.MajorCode == "InspectionExecuteType")
+                                      .FirstOrDefault();
+
+            InspectionExecuteType = firstInspectionExecuteType;
+        }
+
+        InputDateTime = DateTime.Now;
+        CreatedDateTime = DateTime.Now;
+    }
+
+    // 현재 입고 상세 항목에 대해, 연결된 발주서의 상세 발주 정보들을 자동으로 설정
     // 단위, 단가
     private void UpdateValuesFromPurchaseOrder()
     {

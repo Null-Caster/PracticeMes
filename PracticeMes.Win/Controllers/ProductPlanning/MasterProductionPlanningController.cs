@@ -14,6 +14,7 @@ using DevExpress.ExpressApp.Templates;
 using DevExpress.ExpressApp.Utils;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.Validation;
+using DevExpress.Xpo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo;
 using PracticeMes.Module.BusinessObjects.ProductPlanning;
@@ -48,7 +49,20 @@ public partial class MasterProductionPlanningController : ViewController
                 {
                     if (View.ObjectSpace.IsNewObject(productionPlanning)) // 신규
                     {
+                        var recentBOMObject = View.ObjectSpace.GetObjects<ProductBOM>()
+                          .Where(x => x.ItemObject.Oid == productionPlanning?.ItemObject?.Oid)
+                          .ToList()
+                          .OrderByDescending(x => x.BOMNumber)
+                          .FirstOrDefault();
 
+                        if (recentBOMObject == null) return;
+
+                        else
+                        {
+                            foreach (var recentBom in recentBOMObject.AssemblyBOMObjects.Where(x => x.Parent == null)) {
+                                CopyAssemblyBOMRecursive(recentBom, productionPlanning);
+                            }
+                        }
                     }
                     else if (View.ObjectSpace.IsDeletedObject(productionPlanning)) // 삭제
                     {
@@ -71,18 +85,36 @@ public partial class MasterProductionPlanningController : ViewController
         }
     }
 
+    // BOM 생성 재귀함수
+    void CopyAssemblyBOMRecursive(AssemblyBOM source, MasterProductionPlanning newProductBOM, DetailProductionPlanning newParent = null)
+    {
+        var newAssemblyObject = View.ObjectSpace.CreateObject<DetailProductionPlanning>();
+
+        newAssemblyObject.MasterProductionPlanningObject = newProductBOM;
+        newAssemblyObject.ItemObject = source.ItemObject;
+        newAssemblyObject.BOMQuantity = source.BOMQuantity;
+        newAssemblyObject.Parent = newParent;
+
+        foreach (var child in source.Children)
+        {
+            CopyAssemblyBOMRecursive(child, newProductBOM, newAssemblyObject);
+        }
+    }
+
     private static void CheckIfObjectIsInUse(IObjectSpace newObjectSpace, MasterProductionPlanning currentMasterProductionPlanning, string action)
     {
         var referencingList = new List<string>();
 
-        if (newObjectSpace.GetObjects<MasterWorkInstruction>().Any(x => x.MasterProductionPlanningObject.Oid == currentMasterProductionPlanning.Oid))
+        if (newObjectSpace.GetObjects<MasterWorkInstruction>()
+            .Any(x => x.MasterProductionPlanningObject.Oid == currentMasterProductionPlanning.Oid))
+
             referencingList.Add("작업 지시 등록");
 
         if (referencingList.Any())
         {
             string UsingList = string.Join(", ", referencingList);
             throw new UserFriendlyException(
-                     $"이 회사는 다음 메뉴에서 사용 중이므로 {action}할 수 없습니다:\n[{UsingList}]");
+                     $"이 생산 계획은 다음 메뉴에서 사용 중이므로 {action}할 수 없습니다:\n[{UsingList}]");
         }
     }
     protected override void OnViewControlsCreated()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using DevExpress.CodeParser;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ConditionalAppearance;
@@ -48,7 +49,6 @@ public class MasterProductionPlanning : BaseObject
     }
 
     [ImmediatePostData(true)]
-    [ModelDefault("AllowEdit", "False")]
     [DataSourceCriteria("IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(Factory.FactoryName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
@@ -107,37 +107,33 @@ public class MasterProductionPlanning : BaseObject
         set { SetPropertyValue(nameof(EndDateTime), value); }
     }
 
-    [Index(3)]
-    [ModelDefault("AllowEdit", "False")]
-    [DataSourceCriteria("IsEnabled == True")]
+    [Index(2)]
+    [ImmediatePostData(true)]
+    [DataSourceCriteria("IsEnabled == True && (ItemAccountObject.ItemAccountName == '제품' || ItemAccountObject.ItemAccountName == '반제품')")]
     [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "품목 코드를 입력하세요.")]
-    [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
+    [RuleRequiredField(CustomMessageTemplate = "품목 이름을 입력하세요.")]
+    [XafDisplayName("품목 이름"), ToolTip("품목 이름")]
     public Item ItemObject
     {
         get { return GetPropertyValue<Item>(nameof(ItemObject)); }
         set { SetPropertyValue(nameof(ItemObject), value); }
     }
 
-    //[VisibleInLookupListView(true)]
-    //[ModelDefault("AllowEdit", "False")]
-    //[DataSourceCriteria("IsEnabled == True")]
-    //[ModelDefault("LookupProperty", nameof(ItemAccount.ItemAccountName))]
-    //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    //[XafDisplayName("품목 유형"), ToolTip("품목 유형")]
-    //public ItemAccount ItemAccountObject
-    //{
-    //    get { return GetPropertyValue<ItemAccount>(nameof(ItemAccountObject)); }
-    //    set { SetPropertyValue(nameof(ItemAccountObject), value); }
-    //}
-
-    [Index(2)]
+    [Index(3)]
     [VisibleInLookupListView(true)]
-    [XafDisplayName("품목 이름"), ToolTip("품목 이름")]
-    public string ItemName
+    [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
+    public string ItemCode
     {
-        get { return ItemObject?.ItemName; }
+        get { return ItemObject?.ItemCode; }
+    }
+
+    [Index(4)]
+    [VisibleInLookupListView(true)]
+    [XafDisplayName("품목 유형"), ToolTip("품목 유형")]
+    public string ItemAccountObject
+    {
+        get { return ItemObject?.ItemAccountObject?.ItemAccountName; }
     }
 
     [ModelDefault("AllowEdit", "False")]
@@ -151,13 +147,6 @@ public class MasterProductionPlanning : BaseObject
         get { return GetPropertyValue<Unit>(nameof(UnitObject)); }
         set { SetPropertyValue(nameof(UnitObject), value); }
     }
-
-    //[VisibleInLookupListView(true)]
-    //[XafDisplayName("수주유형"), ToolTip("수주유형")]
-    //public string SalesOrderType
-    //{
-    //    get { return DetailSalesOrderObject?.SalesOrderType?.CodeName; }
-    //}
 
     [VisibleInLookupListView(true)]
     [ModelDefault("AllowEdit", "False")]
@@ -186,10 +175,18 @@ public class MasterProductionPlanning : BaseObject
         get { return GetPropertyValue<DateTime>(nameof(CreatedDateTime)); }
         set { SetPropertyValue(nameof(CreatedDateTime), value); }
     }
+
+    [XafDisplayName("BOM목록")]
+    [Association(@"DetailProductionPlanningRefernencesMasterProductionPlanning"), DevExpress.Xpo.Aggregated]
+    public XPCollection<DetailProductionPlanning> DetailProductionPlannings { get { return GetCollection<DetailProductionPlanning>(nameof(DetailProductionPlannings)); } }
     #endregion
 
     #region Constructors
     public MasterProductionPlanning(Session session) : base(session) { }
+    #endregion
+
+    #region Fields
+    private bool isDeleting;
     #endregion
 
     #region Methods
@@ -197,9 +194,50 @@ public class MasterProductionPlanning : BaseObject
     {
         base.AfterConstruction();
 
-        CreatedDateTime = DateTime.Now;
-
+        InitialValueSetting();
         CreateProductionPlanningNumber();
+    }
+
+    protected override void OnChanged(string propertyName, object oldValue, object newValue)
+    {
+        base.OnChanged(propertyName, oldValue, newValue);
+        if (this.Session.IsObjectsLoading)
+        {
+            return;
+        }
+
+        switch (propertyName)
+        {
+            case nameof(DetailSalesOrderObject):
+                ItemObject = DetailSalesOrderObject?.ItemObject;
+                FactoryObject = DetailSalesOrderObject?.MasterSalesOrderObject?.FactoryObject;
+                BusinessPartnerObject = DetailSalesOrderObject?.MasterSalesOrderObject?.BusinessPartnerObject;
+                UnitObject = DetailSalesOrderObject?.SalesOrderUnit;
+                break;
+            case nameof(ItemObject):
+                this.UnitObject = ItemObject?.UnitObject;
+                break;
+            default:
+                break;
+        }
+    }
+
+    // 초기값 세팅
+    private void InitialValueSetting()
+    {
+        // 공장 기본 세팅
+        if (FactoryObject == null)
+        {
+            var firstFactory = Session.Query<Factory>()
+                                      .Where(x => x.IsEnabled)
+                                      .OrderBy(x => x.FactoryName)
+                                      .FirstOrDefault();
+
+            FactoryObject = firstFactory;
+        }
+
+        StartDateTime = DateTime.Now;
+        CreatedDateTime = DateTime.Now;
     }
 
     // 생산 계획 번호 생성 (수주 번호랑 방식 같음)
@@ -221,25 +259,56 @@ public class MasterProductionPlanning : BaseObject
         this.ProductionPlanningNumber = $"{productPlanningDateTime}-{suffix}";
     }
 
-    protected override void OnChanged(string propertyName, object oldValue, object newValue)
-    {
-        base.OnChanged(propertyName, oldValue, newValue);
-        if (this.Session.IsObjectsLoading)
-        {
-            return;
-        }
+    //protected override void OnSaving()
+    //{
+    //    base.OnSaving();
+    //    // 신규
+    //    if ((this.Session is not NestedUnitOfWork)
+    //        && (this.Session.DataLayer is not null)
+    //        && (this.Session.ObjectLayer is SimpleObjectLayer)
+    //        && (this.Session.IsNewObject(this) == true))
+    //    {
 
-        switch (propertyName)
-        {
-            case nameof(DetailSalesOrderObject):
-                ItemObject = DetailSalesOrderObject?.ItemObject;
-                FactoryObject = DetailSalesOrderObject?.MasterSalesOrderObject?.FactoryObject;
-                BusinessPartnerObject = DetailSalesOrderObject?.MasterSalesOrderObject?.BusinessPartnerObject;
-                UnitObject = DetailSalesOrderObject?.SalesOrderUnit;
-                break;
-            default:
-                break;
-        }
-    }
+    //        var recentBOMObject = new XPCollection<ProductBOM>(this.Session)
+    //                                  .Where(x => x.ItemObject.Oid == this?.ItemObject.Oid)
+    //                                  .ToList()
+    //                                  .OrderByDescending(x => x.BOMNumber)
+    //                                  .FirstOrDefault();
+
+    //        if (recentBOMObject == null) return;
+
+    //        else
+    //        {
+    //            foreach (var bom in recentBOMObject.AssemblyBOMObjects.Where(x => x.Parent == null))
+    //            {
+    //                CopyAssemblyBOMRecursive(bom, this); // this = ProductBOMModify
+    //            }
+    //        }
+    //    }
+    //    // 수정
+    //    if ((this.Session is not NestedUnitOfWork)
+    //        && (this.Session.DataLayer is not null)
+    //        && (this.Session.ObjectLayer is SimpleObjectLayer)
+    //        && (this.Session.IsNewObject(this) == false)
+    //        && isDeleting == false && IsDeleted == false)
+    //    {
+    //    }
+
+    //    void CopyAssemblyBOMRecursive(AssemblyBOM source, MasterProductionPlanning newProductBOM, DetailProductionPlanning newParent = null)
+    //    {
+    //        var newAssembly = new DetailProductionPlanning(this.Session);
+    //        newAssembly.MasterProductionPlanningObject = newProductBOM;
+    //        newAssembly.ItemObject = source.ItemObject;
+    //        newAssembly.BOMQuantity = source.BOMQuantity;
+    //        newAssembly.Parent = newParent;
+
+    //        newAssembly.Save();
+
+    //        foreach (var child in source.Children)
+    //        {
+    //            CopyAssemblyBOMRecursive(child, newProductBOM, newAssembly);
+    //        }
+    //    }
+    //}
     #endregion
 }

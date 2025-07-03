@@ -54,6 +54,7 @@
       </Item>
       <Item Id="생산 계획 관리" Index="4">
         <Items>
+          <Item Id="원자재 투입 등록" Caption="원자재 투입 등록" ViewId="MaterialInputResult_ListView" ImageName="ProductOrderDetail-21" IsNewNode="True" />
           <Item Id="MasterWorkInstruction_ListView" ImageName="TableProperties" />
         </Items>
       </Item>

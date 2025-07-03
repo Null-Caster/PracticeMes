@@ -45,8 +45,14 @@ namespace PracticeMes.Win.Controllers.Purchase
                     {
                         // GetObjectByKey: 단일 객체 조회 시 가장 효율이 좋음(XAF/XPO)
                         DetailPurchaseInput oldDetailPurchaseInput = (DetailPurchaseInput)newObjectspace.GetObjectByKey(typeof(DetailPurchaseInput), detailPurchaseInput.Oid);
+
                         // 해당 객체의 Lot 가져오기
-                        Lot oldLotObject = (Lot)newObjectspace.GetObjectByKey(typeof(Lot), oldDetailPurchaseInput.LotObject.Oid);
+                        Lot oldLotObject = null;
+
+                        if (oldDetailPurchaseInput?.LotObject?.Oid != null)
+                        {
+                            oldLotObject = (Lot)newObjectspace.GetObjectByKey(typeof(Lot), oldDetailPurchaseInput.LotObject.Oid);
+                        }
 
                         if (View.ObjectSpace.IsNewObject(detailPurchaseInput))
                         {

@@ -26,7 +26,7 @@ public class DetailPurchaseOrder : BaseObject
     [ImmediatePostData(true)]
     [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [DataSourceCriteria("ItemAccountObject.ItemAccountName == '원자재'")]
+    [DataSourceCriteria("ItemAccountObject.ItemAccountName == '원자재' || ItemAccountObject.ItemAccountName == '부자재'")]
     [RuleRequiredField(CustomMessageTemplate = "품목 코드를 입력하세요.")]
     [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
     public Item ItemObject
@@ -163,6 +163,7 @@ public class DetailPurchaseOrder : BaseObject
                 if (ItemObject != null)
                 {
                     this.UnitObject = this.ItemObject?.UnitObject;
+                    this.UnitPrice = this.ItemObject?.UnitPrice ?? 0;
                 }
                 break;
             default:

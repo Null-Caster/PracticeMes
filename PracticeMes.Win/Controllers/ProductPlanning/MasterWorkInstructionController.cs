@@ -69,7 +69,7 @@ public partial class MasterWorkInstructionController : ViewController
                         if (processedMasterOids.Contains(master.Oid)) continue;
                         processedMasterOids.Add(master.Oid);
 
-                        CreateWorkInstructionNumber(View.ObjectSpace, master);
+                        //CreateWorkInstructionNumber(View.ObjectSpace, master);
                         AddZeroInstruction(View.ObjectSpace, master);
                     }
                 }
@@ -104,8 +104,9 @@ public partial class MasterWorkInstructionController : ViewController
         var defaultProgress = objectSpace.GetObjects<UniversalMinorCode>()
             .FirstOrDefault(p => p.UniversalMajorCodeObject.MajorCode == "Progress" && p.CodeName == "예정");
 
-        foreach (var route in routingList)
+        for (int i = 0; i < routingList.Count; i++)
         {
+            var route = routingList[i];
             var detailPlanning = objectSpace.CreateObject<DetailWorkInstruction>();
 
             detailPlanning.MasterWorkInstructionObject = masterInstruction;
@@ -120,7 +121,32 @@ public partial class MasterWorkInstructionController : ViewController
             detailPlanning.Progress = defaultProgress;
             detailPlanning.PutWorker = 1;
             detailPlanning.CreatedDateTime = DateTime.Now;
+
+            detailPlanning.WorkInstructionNumber = GenerateNextWorkInstructionNumber(objectSpace, masterInstruction, i + 1);
         }
+    }
+
+    // 작업 지시 마스터 생성 시 바로 작업 지시 번호 생성 함수
+    private static string GenerateNextWorkInstructionNumber(IObjectSpace objectSpace, MasterWorkInstruction masterInstruction, int offset)
+    {
+        var planning = masterInstruction.MasterProductionPlanningObject;
+        if (planning == null || string.IsNullOrEmpty(planning.ProductionPlanningNumber))
+            return null;
+
+        var baseNumber = planning.ProductionPlanningNumber.Replace("-", "");
+
+        var existingNumbers = objectSpace.GetObjects<DetailWorkInstruction>()
+            .Where(x => x.MasterWorkInstructionObject.Oid == masterInstruction.Oid &&
+                        !string.IsNullOrEmpty(x.WorkInstructionNumber) &&
+                        x.WorkInstructionNumber.StartsWith(baseNumber))
+            .ToList();
+
+        int maxSeq = existingNumbers
+            .Select(x => int.Parse(x.WorkInstructionNumber[^4..]))
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return $"{baseNumber}-{(maxSeq + offset):0000}";
     }
 
     // 작업 지시 번호 생성

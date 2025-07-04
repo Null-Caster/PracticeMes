@@ -13,6 +13,7 @@ using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo;
+using PracticeMes.Module.BusinessObjects.BaseInfo.ProductionInfo;
 using PracticeMes.Module.Common;
 
 namespace PracticeMes.Module.BusinessObjects.ProductPlanning
@@ -54,6 +55,39 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         }
 
         [VisibleInLookupListView(true)]
+        [ModelDefault("AllowEdit", "False")]
+        [ModelDefault("LookupProperty", nameof(Factory.FactoryName))]
+        [XafDisplayName("공장"), ToolTip("공장")]
+        public Factory FactoryObject
+        {
+            get { return GetPropertyValue<Factory>(nameof(FactoryObject)); }
+            set { SetPropertyValue(nameof(FactoryObject), value); }
+        }
+
+        [VisibleInLookupListView(true)]
+        [ModelDefault("AllowEdit", "False")]
+        [ModelDefault("LookupProperty", nameof(WorkCenter.WorkCenterName))]
+        [XafDisplayName("작업장"), ToolTip("작업장")]
+        public WorkCenter WorkCenterObject
+        {
+            get { return GetPropertyValue<WorkCenter>(nameof(WorkCenterObject)); }
+            set { SetPropertyValue(nameof(WorkCenterObject), value); }
+        }
+
+        [VisibleInLookupListView(true)]
+        [ModelDefault("AllowEdit", "False")]
+        [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
+        [XafDisplayName("지시상태"), ToolTip("지시상태")]
+        public UniversalMinorCode Progress
+        {
+            get
+            {
+                ProgressCheck pg = new ProgressCheck();
+                return pg.FindProgress(this.Session, this, "MasterWorkInstruction");
+            }
+        }
+
+        [VisibleInLookupListView(true)]
         [XafDisplayName("오더수량"), ToolTip("오더수량")]
         public double SalesOrderQuantity
         {
@@ -68,19 +102,6 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         {
             get { return GetPropertyValue<double>(nameof(WorkInstructionQuantity)); }
             set { SetPropertyValue(nameof(WorkInstructionQuantity), value); }
-        }
-
-        [VisibleInLookupListView(true)]
-        [ModelDefault("AllowEdit", "False")]
-        [ModelDefault("LookupProperty", nameof(UniversalMinorCode.CodeName))]
-        [XafDisplayName("지시상태"), ToolTip("지시상태")]
-        public UniversalMinorCode Progress
-        {
-            get
-            {
-                ProgressCheck pg = new ProgressCheck();
-                return pg.FindProgress(this.Session, this, "MasterWorkInstruction");
-            }
         }
 
         [VisibleInLookupListView(true)]
@@ -147,10 +168,11 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
                 BizPartnerObject = MasterProductionPlanningObject?.BusinessPartnerObject;
                 ItemObject = MasterProductionPlanningObject?.ItemObject;
                 SalesOrderQuantity = MasterProductionPlanningObject?.ProductPlanningQuantity ?? 0;
+                FactoryObject = MasterProductionPlanningObject?.FactoryObject;
+                WorkCenterObject = MasterProductionPlanningObject?.WorkCenterObject;
                 StartDateTime = MasterProductionPlanningObject?.StartDateTime ?? DateTime.Now;
             }
         }
         #endregion
-
     }
 }

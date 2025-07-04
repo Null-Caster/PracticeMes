@@ -76,6 +76,7 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
 
         [VisibleInLookupListView(true)]
         [ModelDefault("LookupProperty", nameof(Employee.EmployeeName))]
+        [RuleRequiredField(CustomMessageTemplate = "생산담당자를 입력하세요.")]
         [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
         [XafDisplayName("생산담당자"), ToolTip("생산담당자")]
         public Employee EmployeeObject

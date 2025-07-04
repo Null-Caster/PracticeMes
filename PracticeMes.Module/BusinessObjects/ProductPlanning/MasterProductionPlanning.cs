@@ -16,6 +16,7 @@ using DevExpress.Xpo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 using PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfol;
 using PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo;
+using PracticeMes.Module.BusinessObjects.BaseInfo.ProductionInfo;
 using PracticeMes.Module.BusinessObjects.Sales;
 
 namespace PracticeMes.Module.BusinessObjects.ProductPlanning;
@@ -48,6 +49,18 @@ public class MasterProductionPlanning : BaseObject
         set { SetPropertyValue(nameof(DetailSalesOrderObject), value); }
     }
 
+    [VisibleInLookupListView(true)]
+    [DataSourceCriteria("IsEnabled == True")]
+    [ModelDefault("LookupProperty", nameof(BusinessPartner.BusinessPartnerName))]
+    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [RuleRequiredField(CustomMessageTemplate = "거래처를 입력하세요.")]
+    [XafDisplayName("거래처/수주처"), ToolTip("거래처/수주처")]
+    public BusinessPartner BusinessPartnerObject
+    {
+        get { return GetPropertyValue<BusinessPartner>(nameof(BusinessPartnerObject)); }
+        set { SetPropertyValue(nameof(BusinessPartnerObject), value); }
+    }
+
     [ImmediatePostData(true)]
     [DataSourceCriteria("IsEnabled == True")]
     [ModelDefault("LookupProperty", nameof(Factory.FactoryName))]
@@ -59,6 +72,19 @@ public class MasterProductionPlanning : BaseObject
         get { return GetPropertyValue<Factory>(nameof(FactoryObject)); }
         set { SetPropertyValue(nameof(FactoryObject), value); }
     }
+
+    [ImmediatePostData(true)]
+    [DataSourceCriteria("IsEnabled == True")]
+    [ModelDefault("LookupProperty", nameof(WorkCenter.WorkCenterName))]
+    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [RuleRequiredField(CustomMessageTemplate = "작업장을 입력하세요.")]
+    [XafDisplayName("작업장"), ToolTip("작업장")]
+    public WorkCenter WorkCenterObject
+    {
+        get { return GetPropertyValue<WorkCenter>(nameof(WorkCenterObject)); }
+        set { SetPropertyValue(nameof(WorkCenterObject), value); }
+    }
+
 
     [VisibleInLookupListView(true)]
     [XafDisplayName("수주수량"), ToolTip("수주수량")]
@@ -74,18 +100,6 @@ public class MasterProductionPlanning : BaseObject
     {
         get { return GetPropertyValue<double>(nameof(ProductPlanningQuantity)); }
         set { SetPropertyValue(nameof(ProductPlanningQuantity), value); }
-    }
-
-    [VisibleInLookupListView(true)]
-    [DataSourceCriteria("IsEnabled == True")]
-    [ModelDefault("LookupProperty", nameof(BusinessPartner.BusinessPartnerName))]
-    [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-    [RuleRequiredField(CustomMessageTemplate = "거래처를 입력하세요.")]
-    [XafDisplayName("거래처/수주처"), ToolTip("거래처/수주처")]
-    public BusinessPartner BusinessPartnerObject
-    {
-        get { return GetPropertyValue<BusinessPartner>(nameof(BusinessPartnerObject)); }
-        set { SetPropertyValue(nameof(BusinessPartnerObject), value); }
     }
 
     [ImmediatePostData(true)]
@@ -110,7 +124,7 @@ public class MasterProductionPlanning : BaseObject
     [Index(2)]
     [ImmediatePostData(true)]
     [DataSourceCriteria("IsEnabled == True && (ItemAccountObject.ItemAccountName == '제품' || ItemAccountObject.ItemAccountName == '반제품')")]
-    [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
+    [ModelDefault("LookupProperty", nameof(Item.ItemName))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [RuleRequiredField(CustomMessageTemplate = "품목 이름을 입력하세요.")]
     [XafDisplayName("품목 이름"), ToolTip("품목 이름")]
@@ -258,57 +272,5 @@ public class MasterProductionPlanning : BaseObject
         }
         this.ProductionPlanningNumber = $"{productPlanningDateTime}-{suffix}";
     }
-
-    //protected override void OnSaving()
-    //{
-    //    base.OnSaving();
-    //    // 신규
-    //    if ((this.Session is not NestedUnitOfWork)
-    //        && (this.Session.DataLayer is not null)
-    //        && (this.Session.ObjectLayer is SimpleObjectLayer)
-    //        && (this.Session.IsNewObject(this) == true))
-    //    {
-
-    //        var recentBOMObject = new XPCollection<ProductBOM>(this.Session)
-    //                                  .Where(x => x.ItemObject.Oid == this?.ItemObject.Oid)
-    //                                  .ToList()
-    //                                  .OrderByDescending(x => x.BOMNumber)
-    //                                  .FirstOrDefault();
-
-    //        if (recentBOMObject == null) return;
-
-    //        else
-    //        {
-    //            foreach (var bom in recentBOMObject.AssemblyBOMObjects.Where(x => x.Parent == null))
-    //            {
-    //                CopyAssemblyBOMRecursive(bom, this); // this = ProductBOMModify
-    //            }
-    //        }
-    //    }
-    //    // 수정
-    //    if ((this.Session is not NestedUnitOfWork)
-    //        && (this.Session.DataLayer is not null)
-    //        && (this.Session.ObjectLayer is SimpleObjectLayer)
-    //        && (this.Session.IsNewObject(this) == false)
-    //        && isDeleting == false && IsDeleted == false)
-    //    {
-    //    }
-
-    //    void CopyAssemblyBOMRecursive(AssemblyBOM source, MasterProductionPlanning newProductBOM, DetailProductionPlanning newParent = null)
-    //    {
-    //        var newAssembly = new DetailProductionPlanning(this.Session);
-    //        newAssembly.MasterProductionPlanningObject = newProductBOM;
-    //        newAssembly.ItemObject = source.ItemObject;
-    //        newAssembly.BOMQuantity = source.BOMQuantity;
-    //        newAssembly.Parent = newParent;
-
-    //        newAssembly.Save();
-
-    //        foreach (var child in source.Children)
-    //        {
-    //            CopyAssemblyBOMRecursive(child, newProductBOM, newAssembly);
-    //        }
-    //    }
-    //}
     #endregion
 }

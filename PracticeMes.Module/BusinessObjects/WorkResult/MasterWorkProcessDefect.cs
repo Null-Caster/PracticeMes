@@ -23,45 +23,45 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult
     public class MasterWorkProcessDefect : BaseObject
     {
         #region Properties
-        [VisibleInLookupListView(true)]
-        [ImmediatePostData(true)]
-        [Appearance("AssySerialProductObjectEdit", Criteria = "!(IsNewObject(this))", Enabled = false)]
-        [DataSourceProperty(nameof(AvailableAssySerialProductObjects))]
-        [ModelDefault("LookupProperty", nameof(AssySerialProduct.SerialNumber))]
-        [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-        [RuleUniqueValue(CustomMessageTemplate = "공정의 시리얼번호가 중복되었습니다.")]
-        [RuleRequiredField(CustomMessageTemplate = "시리얼 번호를 입력하세요.")]
-        [XafDisplayName("시리얼 번호"), ToolTip("시리얼 번호")]
-        public AssySerialProduct AssySerialProductObject
-        {
-            get { return GetPropertyValue<AssySerialProduct>(nameof(AssySerialProductObject)); }
-            set { SetPropertyValue(nameof(AssySerialProductObject), value); }
-        }
+        //[VisibleInLookupListView(true)]
+        //[ImmediatePostData(true)]
+        //[Appearance("AssySerialProductObjectEdit", Criteria = "!(IsNewObject(this))", Enabled = false)]
+        //[DataSourceProperty(nameof(AvailableAssySerialProductObjects))]
+        //[ModelDefault("LookupProperty", nameof(AssySerialProduct.SerialNumber))]
+        //[LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+        //[RuleUniqueValue(CustomMessageTemplate = "공정의 시리얼번호가 중복되었습니다.")]
+        //[RuleRequiredField(CustomMessageTemplate = "시리얼 번호를 입력하세요.")]
+        //[XafDisplayName("시리얼 번호"), ToolTip("시리얼 번호")]
+        //public AssySerialProduct AssySerialProductObject
+        //{
+        //    get { return GetPropertyValue<AssySerialProduct>(nameof(AssySerialProductObject)); }
+        //    set { SetPropertyValue(nameof(AssySerialProductObject), value); }
+        //}
 
-        [Browsable(false)]
-        public List<AssySerialProduct> AvailableAssySerialProductObjects
-        {
-            get
-            {
-                return new XPCollection<AssySerialProduct>(this.Session).Where(x => x.MiddleWorkResultObject?.DetailWorkInstructionObject?.Progress.CodeName == "진행중" && 
-                                                                                    x.Oid != this.AssySerialProductObject?.Oid)
-                                                                        .ToList();
-            }
-        }
+        //[Browsable(false)]
+        //public List<AssySerialProduct> AvailableAssySerialProductObjects
+        //{
+        //    get
+        //    {
+        //        return new XPCollection<AssySerialProduct>(this.Session).Where(x => x.MiddleWorkResultObject?.DetailWorkInstructionObject?.Progress.CodeName == "진행중" && 
+        //                                                                            x.Oid != this.AssySerialProductObject?.Oid)
+        //                                                                .ToList();
+        //    }
+        //}
 
-        [VisibleInLookupListView(true)]
-        [XafDisplayName("작업지시 번호"), ToolTip("작업지시 번호")]
-        public string WorkInstructionNumber
-        {
-            get { return AssySerialProductObject?.MiddleWorkResultObject?.DetailWorkInstructionObject?.WorkInstructionNumber; }
-        }
+        //[VisibleInLookupListView(true)]
+        //[XafDisplayName("작업지시 번호"), ToolTip("작업지시 번호")]
+        //public string WorkInstructionNumber
+        //{
+        //    get { return AssySerialProductObject?.MiddleWorkResultObject?.DetailWorkInstructionObject?.WorkInstructionNumber; }
+        //}
 
-        [VisibleInLookupListView(true)]
-        [XafDisplayName("공정 명칭"), ToolTip("공정 명칭")]
-        public string WorkProcessName
-        {
-            get { return AssySerialProductObject?.MiddleWorkResultObject?.WorkProcessName; }
-        }
+        //[VisibleInLookupListView(true)]
+        //[XafDisplayName("공정 명칭"), ToolTip("공정 명칭")]
+        //public string WorkProcessName
+        //{
+        //    get { return AssySerialProductObject?.MiddleWorkResultObject?.WorkProcessName; }
+        //}
 
         [VisibleInLookupListView(true)]
         [ModelDefault("AllowEdit", "False")]

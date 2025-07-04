@@ -55,16 +55,16 @@ public class DetailWorkProcessDefect : BaseObject
         set { SetPropertyValue(nameof(WorkResultDateTime), value); }
     }
 
-    [VisibleInLookupListView(true)]
-    [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.##")]
-    [XafDisplayName("입력 가능 수량"), ToolTip("입력 가능 수량")]
-    public int ChipQuantity
-    {
-        get
-        {
-            return Convert.ToInt32(MasterWorkProcessDefectObject?.AssySerialProductObject?.GoodQuantity);
-        }
-    }
+//[VisibleInLookupListView(true)]
+//[ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.##")]
+//[XafDisplayName("입력 가능 수량"), ToolTip("입력 가능 수량")]
+//public int ChipQuantity
+//{
+//    get
+//    {
+//        return Convert.ToInt32(MasterWorkProcessDefectObject?.AssySerialProductObject?.GoodQuantity);
+//    }
+//}
 
     [VisibleInLookupListView(true)]
     //[RuleValueComparison("", DefaultContexts.Save, ValueComparisonType.LessThanOrEqual, "ChipQuantity", ParametersMode.Expression, CustomMessageTemplate = "입력 가능 수량을 초과할 수 없습니다.")]

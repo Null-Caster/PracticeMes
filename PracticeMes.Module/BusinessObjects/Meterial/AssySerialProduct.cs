@@ -39,44 +39,44 @@ namespace PracticeMes.Module.BusinessObjects.Meterial
             set { SetPropertyValue(nameof(SerialNumber), value); }
         }
 
-        [VisibleInLookupListView(true)]
-        [XafDisplayName("품목코드"), ToolTip("품목코드")]
-        public string ItemCode
-        {
-            get { return MiddleWorkResultObject?.ItemCode; }
-        }
+        //[VisibleInLookupListView(true)]
+        //[XafDisplayName("품목코드"), ToolTip("품목코드")]
+        //public string ItemCode
+        //{
+        //    get { return MiddleWorkResultObject?.ItemCode; }
+        //}
 
-        [VisibleInLookupListView(true)]
-        [XafDisplayName("품목명칭"), ToolTip("품목명칭")]
-        public string ItemName
-        {
-            get { return MiddleWorkResultObject?.ItemName; }
-        }
+        //[VisibleInLookupListView(true)]
+        //[XafDisplayName("품목명칭"), ToolTip("품목명칭")]
+        //public string ItemName
+        //{
+        //    get { return MiddleWorkResultObject?.ItemName; }
+        //}
 
-        [VisibleInLookupListView(true)]
-        [XafDisplayName("공정이름"), ToolTip("공정이름")]
-        public string WorkProcessName
-        {
-            get { return MiddleWorkResultObject?.WorkProcessName; }
-        }
+        //[VisibleInLookupListView(true)]
+        //[XafDisplayName("공정이름"), ToolTip("공정이름")]
+        //public string WorkProcessName
+        //{
+        //    get { return MiddleWorkResultObject?.WorkProcessName; }
+        //}
 
-        [VisibleInLookupListView(true)]
-        [ModelDefault("AllowEdit", "False")]
-        [XafDisplayName("양품수량"), ToolTip("양품수량")]
-        public double GoodQuantity
-        {
-            get
-            {
-                if (MiddleWorkResultObject?.DetailWorkInstructionQuantity != MiddleWorkResultObject?.WorkInstructionQuantity)
-                {
-                    return MiddleWorkResultObject.GoodQuantity - WorkProcessDefectQuantity;
-                }
-                else
-                {
-                    return 1 - WorkProcessDefectQuantity;
-                }
-            }
-        }
+        //[VisibleInLookupListView(true)]
+        //[ModelDefault("AllowEdit", "False")]
+        //[XafDisplayName("양품수량"), ToolTip("양품수량")]
+        //public double GoodQuantity
+        //{
+        //    get
+        //    {
+        //        if (MiddleWorkResultObject?.DetailWorkInstructionQuantity != MiddleWorkResultObject?.WorkInstructionQuantity)
+        //        {
+        //            return MiddleWorkResultObject.GoodQuantity - WorkProcessDefectQuantity;
+        //        }
+        //        else
+        //        {
+        //            return 1 - WorkProcessDefectQuantity;
+        //        }
+        //    }
+        //}
 
         //[VisibleInLookupListView(true)]
         [Browsable(false)]
@@ -99,13 +99,13 @@ namespace PracticeMes.Module.BusinessObjects.Meterial
             set { SetPropertyValue(nameof(CreatedDateTime), value); }
         }
 
-        [Browsable(false)]
-        [Association(@"AssySerialProductReferencesMiddleWorkResult")]
-        public MiddleWorkResult MiddleWorkResultObject
-        {
-            get { return GetPropertyValue<MiddleWorkResult>(nameof(MiddleWorkResultObject)); }
-            set { SetPropertyValue<MiddleWorkResult>(nameof(MiddleWorkResultObject), value); }
-        }
+        //[Browsable(false)]
+        //[Association(@"AssySerialProductReferencesMiddleWorkResult")]
+        //public MiddleWorkResult MiddleWorkResultObject
+        //{
+        //    get { return GetPropertyValue<MiddleWorkResult>(nameof(MiddleWorkResultObject)); }
+        //    set { SetPropertyValue<MiddleWorkResult>(nameof(MiddleWorkResultObject), value); }
+        //}
         #endregion
 
         #region Constructors

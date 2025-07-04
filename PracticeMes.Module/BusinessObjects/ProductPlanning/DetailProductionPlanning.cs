@@ -55,7 +55,7 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
         public string ItemCode
         {
-            get { return MasterProductionPlanningObject?.ItemObject?.ItemCode; }
+            get { return ItemObject?.ItemCode; }
         }
 
         [ImmediatePostData(true)]
@@ -63,7 +63,7 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         [XafDisplayName("품목 계정"), ToolTip("품목 코드")]
         public string ItemAccountName
         {
-            get { return MasterProductionPlanningObject?.ItemObject?.ItemAccountObject?.ItemAccountName; }
+            get { return ItemObject?.ItemAccountObject?.ItemAccountName; }
         }
 
         [ImmediatePostData(true)]
@@ -71,7 +71,7 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         [XafDisplayName("품목 단위"), ToolTip("품목 단위")]
         public string ItemUnit
         {
-            get { return MasterProductionPlanningObject?.ItemObject?.UnitObject?.UnitName; }
+            get { return ItemObject?.UnitObject?.UnitName; }
         }
 
         [VisibleInLookupListView(true)]

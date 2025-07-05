@@ -23,6 +23,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
 
         #region Properties
         [VisibleInLookupListView(true)]
+        [ImmediatePostData(true)]
         [ModelDefault("LookupProperty", nameof(Lot.LotNumber))]
         [DataSourceProperty(nameof(AvailableObjects))]
         [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
@@ -32,18 +33,21 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             get { return GetPropertyValue<Lot>(nameof(LotObject)); }
             set { SetPropertyValue(nameof(LotObject), value); }
         }
+
         [VisibleInLookupListView(true)]
         [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
         public string ItemCode
         {
             get { return LotObject?.ItemObject?.ItemCode; }
         }
+
         [VisibleInLookupListView(true)]
         [XafDisplayName("품목 명칭"), ToolTip("품목 명칭")]
         public string ItemName
         {
             get { return LotObject?.ItemObject?.ItemName; }
         }
+
         [VisibleInLookupListView(true)]
         [XafDisplayName("로트 재고 수량"), ToolTip("로트 재고 수량")]
         public double StockQuantity
@@ -59,6 +63,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             get { return Math.Round(GetPropertyValue<double>(nameof(ShipmentQuantity)), 1); }
             set { SetPropertyValue(nameof(ShipmentQuantity), Math.Round(value, 1)); }
         }
+
         [VisibleInLookupListView(true)]
         [ModelDefault("AllowEdit", "False")]
         [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
@@ -70,11 +75,11 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             set { SetPropertyValue(nameof(CreatedDateTime), value); }
         }
 
-        [Association(@"DetailSalesShipmentLotReferencesDetailSalesShipment")]
-        public DetailSalesShipment DetailSalesShipmentObject
+        [Association(@"DetailSalesShipmentLotReferencesMasterSalesShipment")]
+        public MasterSalesShipment MasterSalesShipmentObject
         {
-            get { return GetPropertyValue<DetailSalesShipment>(nameof(DetailSalesShipmentObject)); }
-            set { SetPropertyValue(nameof(DetailSalesShipmentObject), value); }
+            get { return GetPropertyValue<MasterSalesShipment>(nameof(MasterSalesShipmentObject)); }
+            set { SetPropertyValue(nameof(MasterSalesShipmentObject), value); }
         }
 
         #endregion
@@ -95,12 +100,12 @@ namespace PracticeMes.Module.BusinessObjects.Sales
         {
             get
             {
-                if (this.DetailSalesShipmentObject != null)
+                if (this.MasterSalesShipmentObject != null)
                 {
-                    var test = new XPCollection<Lot>(this.Session).Where(x => x.ItemObject.Oid == DetailSalesShipmentObject?.DetailSalesOrderObject?.ItemObject.Oid)
+                    var test = new XPCollection<Lot>(this.Session).Where(x => x.ItemObject.Oid == MasterSalesShipmentObject?.DetailSalesOrderObject?.ItemObject.Oid)
                                                                   .Where(x => x.StockQuantity > 0 && x.ItemAccountObject?.ItemAccountName == "제품").ToList();
 
-                    foreach (var visiblelotobject in DetailSalesShipmentObject.DetailSalesShipmentLotObjects)
+                    foreach (var visiblelotobject in MasterSalesShipmentObject.DetailSalesShipmentLotObjects)
                     {
                         if (test.Contains(visiblelotobject.LotObject))
                         {

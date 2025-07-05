@@ -56,6 +56,7 @@
         <Items>
           <Item Id="원자재 투입 등록" Caption="원자재 투입 등록" ViewId="MaterialInputResult_ListView" ImageName="ProductOrderDetail-21" IsNewNode="True" />
           <Item Id="MasterWorkInstruction_ListView" ImageName="TableProperties" />
+          <Item Id="MaterialInputResult_ListView" Removed="True" />
         </Items>
       </Item>
       <Item Id="공정 관리" Index="5">
@@ -75,11 +76,11 @@
   </NavigationItems>
   <Options UIType="TabbedMDI" FormStyle="Ribbon" />
   <SchemaModules>
-    <SchemaModule Name="CloneObjectModule" Version="23.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SchedulerModuleBase" Version="23.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SchedulerWindowsFormsModule" Version="23.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SystemModule" Version="23.1.9.0" IsNewNode="True" />
-    <SchemaModule Name="SystemWindowsFormsModule" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="CloneObjectModule" Version="23.1.15.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerModuleBase" Version="23.1.15.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerWindowsFormsModule" Version="23.1.15.0" IsNewNode="True" />
+    <SchemaModule Name="SystemModule" Version="23.1.15.0" IsNewNode="True" />
+    <SchemaModule Name="SystemWindowsFormsModule" Version="23.1.15.0" IsNewNode="True" />
   </SchemaModules>
   <Views>
     <DetailView Id="AssemblyBOM_DetailView">

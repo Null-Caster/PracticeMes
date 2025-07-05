@@ -15,6 +15,7 @@ using DevExpress.ExpressApp.Utils;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.Validation;
 using PracticeMes.Module.BusinessObjects.LotManagement;
+using PracticeMes.Module.BusinessObjects.Purchase;
 using PracticeMes.Module.BusinessObjects.Sales;
 
 namespace PracticeMes.Win.Controllers.Sales;
@@ -44,45 +45,38 @@ public partial class MasterSalesShipmentController : ViewController
                 {
                     if (View.ObjectSpace.IsNewObject(detailSalesShipmentLot))
                     {
+                        // 생산 Lot 가져와서 수량 재고, 출하 수량 적용시키기
+                        Lot lotObject = (Lot)newObjectspace.GetObjectByKey(typeof(Lot), detailSalesShipmentLot?.LotObject?.Oid);
+
+                        lotObject.ReleaseQuantity += detailSalesShipmentLot?.ShipmentQuantity ?? 0;
                     }
-                    // 수정/삭제인 경우
+                    else if (View.ObjectSpace.IsDeletedObject(detailSalesShipmentLot))
+                    {
+                        // 출하 Lot
+                        DetailSalesShipmentLot preShipmentLotObject = (DetailSalesShipmentLot)newObjectspace.GetObjectByKey(typeof(DetailSalesShipmentLot), detailSalesShipmentLot.Oid);
+
+                        // 생산 Lot
+                        Lot lotObject = (Lot)newObjectspace.GetObjectByKey(typeof(Lot), preShipmentLotObject?.LotObject?.Oid);
+
+                        lotObject.ReleaseQuantity -= preShipmentLotObject?.ShipmentQuantity ?? 0;
+                    }
                     else
                     {
-                        if ((detailSalesShipmentLot).IsDeleted) // 삭제인 경우
-                        {
-                            // 출하수량을 재고수량으로 변경해주기 단 출하수량이 존재하지 않는다면 재고반영 불가
-                            var beforeDetailSalesShipmentLotObject = newObjectspace.GetObjects<DetailSalesShipmentLot>().Where(x => x.Oid == ((DetailSalesShipmentLot)detailSalesShipmentLot).Oid).FirstOrDefault();
-                            var beforeShipmentQuantity = beforeDetailSalesShipmentLotObject.ShipmentQuantity;
-                            var lotObject = View.ObjectSpace.GetObjects<Lot>().Where(x => x.Oid == beforeDetailSalesShipmentLotObject.LotObject.Oid).FirstOrDefault();
-                            lotObject.ReleaseQuantity -= 1;
+                        // 이전 Lot
+                        DetailSalesShipmentLot preShipmentLotObject = newObjectspace.GetObjectByKey<DetailSalesShipmentLot>(detailSalesShipmentLot.Oid);
+                        Lot LotObject = newObjectspace.GetObjectByKey<Lot>(preShipmentLotObject?.LotObject?.Oid);
 
-                        }
-                        else // 수정인경우
-                        {
-                            // 이전 출하수량을 다시 재고로 덮고 그 새로입력받은 출하수량을 출하로 변경 단 재고가 존재해야함
+                        // 현재 사용자 출하 수량
+                        var currentShipmentQty = detailSalesShipmentLot?.ShipmentQuantity ?? 0;
 
-                            var lotObject = detailSalesShipmentLot?.LotObject;
-                            var beforeDetailSalesShipmentLotObject = newObjectspace.GetObjects<DetailSalesShipmentLot>().Where(x => x.Oid == detailSalesShipmentLot.Oid).FirstOrDefault();
-                            var beforeLotObject = beforeDetailSalesShipmentLotObject.LotObject;
-                            var beforeShipmentQuantity = beforeDetailSalesShipmentLotObject.ShipmentQuantity;
+                        // 이전 출하 수량
+                         var preQty = LotObject.ReleaseQuantity;
 
-                            // 이전 로트 원복
-                            var beforelotObject = View.ObjectSpace.GetObjects<Lot>().Where(x => x.Oid == beforeDetailSalesShipmentLotObject.LotObject.Oid).FirstOrDefault();
-                            beforelotObject.ReleaseQuantity = beforelotObject.ReleaseQuantity - 1;
-
-                            // 신규 로트 적용
-                            if (lotObject.Oid == beforeLotObject.Oid) // 로트 동일한데 변경한경우
-                            {
-                                lotObject.ReleaseQuantity += 1;
-                            }
-                            else // 로트 바뀐경우
-                            {
-                                lotObject.ReleaseQuantity += 1;
-                            }
-                        }
+                        LotObject.ReleaseQuantity += currentShipmentQty - preQty;
                     }
                 }
             }
+            newObjectspace.CommitChanges();
         }
 
         catch (UserFriendlyException ex)

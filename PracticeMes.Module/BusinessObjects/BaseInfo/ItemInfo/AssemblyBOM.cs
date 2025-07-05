@@ -59,7 +59,7 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo
 
         public ItemAccount ItemAccountObject
         {
-            get { return ItemObject.ItemAccountObject; }
+            get { return ItemObject?.ItemAccountObject; }
         }
 
         [VisibleInLookupListView(true)]

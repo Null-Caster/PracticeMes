@@ -17,7 +17,7 @@ using PracticeMes.Module.BusinessObjects.LotManagement;
 namespace PracticeMes.Module.BusinessObjects.ProductPlanning
 {
     [DefaultClassOptions]
-    [NavigationItem("생산계획 관리"), XafDisplayName("원자재 투입 등록")]
+    [NavigationItem("생산 계획 관리"), XafDisplayName("원자재 투입 등록")]
     [DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
     [RuleCriteria("MaterialInputQuantity_LessThanOrEqualTo_InputQuantity", DefaultContexts.Save, "MaterialInputQuantity <= InputQuantity", CustomMessageTemplate = "투입 수량은 총 원자재 총 필요 수량을 초과할 수 없습니다.")]
     public class MaterialInputResult : BaseObject
@@ -92,6 +92,35 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
             {
                 double stockQuantity = new XPCollection<Lot>(this.Session).Where(x => x.ItemObject.Oid == this.LotObject?.ItemObject?.Oid).Sum(x => x.StockQuantity);
                 return stockQuantity;
+            }
+        }
+
+        [VisibleInLookupListView(true)]
+        [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.0")]
+        [ModelDefault("AllowEdit", "false")]
+        [XafDisplayName("BOM 수량"), ToolTip(" BOM 수량")]
+        public double BOMQuantity
+        {
+            get
+            {
+                var productBOMItemOid = DetailWorkInstructionObject?.MasterWorkInstructionObject?.MasterProductionPlanningObject?.ItemObject?.Oid;
+                var inputItemOid = ItemObject?.Oid;
+
+                if (productBOMItemOid == null || inputItemOid == null) return 0;
+
+                // 최신 BOM 1개 가져오기
+                var productBOM = new XPCollection<ProductBOM>(this.Session)
+                    .Where(x => x.ItemObject.Oid == productBOMItemOid)
+                    .OrderByDescending(x => x.BOMNumber)
+                    .FirstOrDefault();
+
+                if (productBOM == null) return 0;
+
+                // BOM 구성 중 선택된 투입 원자재를 찾아 BOM 수량 가져오기
+                var bomQuantity = productBOM.AssemblyBOMObjects
+                    .FirstOrDefault(x => x.ItemObject.Oid == inputItemOid)?.BOMQuantity ?? 0;
+
+                return bomQuantity;
             }
         }
 

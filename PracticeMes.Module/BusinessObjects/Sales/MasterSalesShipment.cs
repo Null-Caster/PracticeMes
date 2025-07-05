@@ -22,6 +22,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
     {
 
         #region Properties
+        [Index(0)]
         [VisibleInLookupListView(true)]
         [ModelDefault("AllowEdit", "False")]
         [RuleUniqueValue(CustomMessageTemplate = "출하 번호가 중복되었습니다.")]
@@ -33,15 +34,35 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             set { SetPropertyValue(nameof(SalesShipmentNumber), value); }
         }
 
+        [ModelDefault("LookupProperty", nameof(DetailSalesOrder.SalesOrderNumber))]
+        [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+        [RuleRequiredField(CustomMessageTemplate = "수주 번호를 입력하세요.")]
+        [XafDisplayName("수주 번호"), ToolTip("수주 번호")]
         [ImmediatePostData(true)]
-        [VisibleInLookupListView(true)]
-        [ModelDefault("DisplayFormat", "yyyy/MM/dd")]
-        [RuleRequiredField(CustomMessageTemplate = "출하 일자를 입력하세요.")]
-        [XafDisplayName("출하 일자"), ToolTip("출하 일자")]
-        public DateTime SalesShipmentDateTime
+        public DetailSalesOrder DetailSalesOrderObject
         {
-            get { return GetPropertyValue<DateTime>(nameof(SalesShipmentDateTime)); }
-            set { SetPropertyValue(nameof(SalesShipmentDateTime), value); }
+            get { return GetPropertyValue<DetailSalesOrder>(nameof(DetailSalesOrderObject)); }
+            set { SetPropertyValue(nameof(DetailSalesOrderObject), value); }
+        }
+
+        [VisibleInLookupListView(true)]
+        [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
+        public string ItemCode
+        {
+            get { return DetailSalesOrderObject?.ItemObject?.ItemCode; }
+        }
+
+        [VisibleInLookupListView(true)]
+        [XafDisplayName("품목 이름"), ToolTip("품목 이름")]
+        public string ItemName
+        {
+            get { return DetailSalesOrderObject?.ItemName; }
+        }
+
+        [XafDisplayName("수주 수량"), ToolTip("수주 수량")]
+        public double SalesOrderQuantity
+        {
+            get { return DetailSalesOrderObject?.SalesOrderQuantity ?? 0; }
         }
 
         [VisibleInLookupListView(true)]
@@ -52,8 +73,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
         [XafDisplayName("거래처"), ToolTip("거래처")]
         public BusinessPartner BusinessPartnerObject
         {
-            get { return GetPropertyValue<BusinessPartner>(nameof(BusinessPartnerObject)); }
-            set { SetPropertyValue(nameof(BusinessPartnerObject), value); }
+            get { return DetailSalesOrderObject?.MasterSalesOrderObject?.BusinessPartnerObject; }
         }
 
         [VisibleInLookupListView(true)]
@@ -79,12 +99,15 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             set { SetPropertyValue(nameof(WareHouseObject), value); }
         }
 
+        [ImmediatePostData(true)]
         [VisibleInLookupListView(true)]
-        [XafDisplayName("거래처 담당자"), ToolTip("거래처 담당자")]
-        public string ClientManager
+        [ModelDefault("DisplayFormat", "yyyy/MM/dd")]
+        [RuleRequiredField(CustomMessageTemplate = "출하 일자를 입력하세요.")]
+        [XafDisplayName("출하 일자"), ToolTip("출하 일자")]
+        public DateTime SalesShipmentDateTime
         {
-            get { return GetPropertyValue<string>(nameof(ClientManager)); }
-            set { SetPropertyValue(nameof(ClientManager), value); }
+            get { return GetPropertyValue<DateTime>(nameof(SalesShipmentDateTime)); }
+            set { SetPropertyValue(nameof(SalesShipmentDateTime), value); }
         }
 
         [VisibleInLookupListView(true)]
@@ -106,9 +129,13 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             set { SetPropertyValue(nameof(CreatedDateTime), value); }
         }
 
-        [XafDisplayName("출하 상세")]
-        [Association(@"DetailSalesShipmentReferencesMasterSalesShipment"), DevExpress.Xpo.Aggregated]
-        public XPCollection<DetailSalesShipment> DetailSalesShipmentObjects { get { return GetCollection<DetailSalesShipment>(nameof(DetailSalesShipmentObjects)); } }
+        [XafDisplayName("LOT 정보")]
+        [Association(@"DetailSalesShipmentLotReferencesMasterSalesShipment"), DevExpress.Xpo.Aggregated]
+        public XPCollection<DetailSalesShipmentLot> DetailSalesShipmentLotObjects { get { return GetCollection<DetailSalesShipmentLot>(nameof(DetailSalesShipmentLotObjects)); } }
+
+        //[XafDisplayName("출하 상세")]
+        //[Association(@"DetailSalesShipmentReferencesMasterSalesShipment"), DevExpress.Xpo.Aggregated]
+        //public XPCollection<DetailSalesShipment> DetailSalesShipmentObjects { get { return GetCollection<DetailSalesShipment>(nameof(DetailSalesShipmentObjects)); } }
         #endregion
 
         #region Constructors
@@ -135,6 +162,10 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             {
                 case nameof(SalesShipmentDateTime):
                     CreateSalesOrderNumber();
+                    break;
+                case nameof(DetailSalesOrderObject):
+                    EmployeeObject = DetailSalesOrderObject?.MasterSalesOrderObject?.EmployeeObject;
+                    WareHouseObject = DetailSalesOrderObject?.MasterSalesOrderObject?.WareHouseObject;
                     break;
                 default:
                     break;

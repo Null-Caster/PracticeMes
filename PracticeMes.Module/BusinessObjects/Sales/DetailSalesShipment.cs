@@ -71,16 +71,12 @@ namespace PracticeMes.Module.BusinessObjects.Sales
             set { SetPropertyValue(nameof(CreatedDateTime), value); }
         }
 
-        [Association(@"DetailSalesShipmentReferencesMasterSalesShipment")]
-        public MasterSalesShipment MasterSalesShipmentObject
-        {
-            get { return GetPropertyValue<MasterSalesShipment>(nameof(MasterSalesShipmentObject)); }
-            set { SetPropertyValue(nameof(MasterSalesShipmentObject), value); }
-        }
-
-        [XafDisplayName("LOT 정보")]
-        [Association(@"DetailSalesShipmentLotReferencesDetailSalesShipment"), DevExpress.Xpo.Aggregated]
-        public XPCollection<DetailSalesShipmentLot> DetailSalesShipmentLotObjects { get { return GetCollection<DetailSalesShipmentLot>(nameof(DetailSalesShipmentLotObjects)); } }
+        //[Association(@"DetailSalesShipmentReferencesMasterSalesShipment")]
+        //public MasterSalesShipment MasterSalesShipmentObject
+        //{
+        //    get { return GetPropertyValue<MasterSalesShipment>(nameof(MasterSalesShipmentObject)); }
+        //    set { SetPropertyValue(nameof(MasterSalesShipmentObject), value); }
+        //}
         #endregion
 
         #region Constructors

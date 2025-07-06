@@ -33,12 +33,25 @@ public class MasterPurchaseInput : BaseObject
     [VisibleInLookupListView(true)]
     [ModelDefault("LookupProperty", nameof(MasterPurchaseOrder.PurchaseOrderNumber))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [DataSourceProperty(nameof(AvailableObjects))]
     [XafDisplayName("구매발주번호"), ToolTip("구매발주번호")]
     [ImmediatePostData(true)]
     public MasterPurchaseOrder MasterPurchaseOrderObject
     {
         get { return GetPropertyValue<MasterPurchaseOrder>(nameof(MasterPurchaseOrderObject)); }
         set { SetPropertyValue(nameof(MasterPurchaseOrderObject), value); }
+    }
+
+    [Browsable(false)]
+    public List<MasterPurchaseOrder> AvailableObjects
+    {
+        get
+        {
+            return new XPCollection<MasterPurchaseOrder>(this.Session)
+                .Where(m => m.DetailPurchaseOrderobjects
+                .Any(d => d.PurchaseOrderQuantity > d.PurchaseInputQuantity))
+                .ToList();
+        }
     }
 
     [VisibleInLookupListView(true)]

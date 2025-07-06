@@ -72,6 +72,14 @@ public class Company : BaseObject
     }
 
     [VisibleInLookupListView(true)]
+    [XafDisplayName("팩스 번호"), ToolTip("팩스 번호")]
+    public string FaxNumber
+    {
+        get { return GetPropertyValue<string>(nameof(FaxNumber)); }
+        set { SetPropertyValue(nameof(FaxNumber), value); }
+    }
+
+    [VisibleInLookupListView(true)]
     [XafDisplayName("우편 번호"), ToolTip("우편 번호")]
     public string PostalCode
     {

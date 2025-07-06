@@ -23,12 +23,6 @@ namespace PracticeMes.Module.BusinessObjects.Meterial
     public class AssySerialProduct : BaseObject
     {
         #region Properties
-        [Browsable(false)]
-        public DetailIntermediateInspection DetailIntermediateInspectionObject
-        {
-            get { return GetPropertyValue<DetailIntermediateInspection>(nameof(DetailIntermediateInspectionObject)); }
-            set { SetPropertyValue(nameof(DetailIntermediateInspectionObject), value); }
-        }
 
         [VisibleInLookupListView(true)]
         [RuleRequiredField(CustomMessageTemplate = "시리얼 번호를 입력하세요.")]

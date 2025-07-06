@@ -14,6 +14,7 @@ using DevExpress.ExpressApp.Templates;
 using DevExpress.ExpressApp.Utils;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.Validation;
+using PracticeMes.Module.BusinessObjects.Inspect;
 using PracticeMes.Module.BusinessObjects.LotManagement;
 using PracticeMes.Module.BusinessObjects.Purchase;
 
@@ -56,7 +57,9 @@ namespace PracticeMes.Win.Controllers.Purchase
 
                         if (View.ObjectSpace.IsNewObject(detailPurchaseInput))
                         {
+                            CheckInputQuantity(newObjectspace, detailPurchaseInput);
                             CreateLotObject(detailPurchaseInput);
+                            CreateInspectionObject(detailPurchaseInput);
                         }
                         else if (View.ObjectSpace.IsDeletedObject(detailPurchaseInput))
                         {
@@ -75,6 +78,11 @@ namespace PracticeMes.Win.Controllers.Purchase
                                     else
                                     {
                                         oldLotObject.Delete();
+
+                                        var preInspectionObject = newObjectspace.GetObjects<IncomingInspection>()
+                                            .FirstOrDefault(x => x.DetailPurchaseInputObject.Oid == detailPurchaseInput.Oid);
+
+                                        preInspectionObject?.Delete();
                                     }
                                 }
                             }
@@ -83,23 +91,6 @@ namespace PracticeMes.Win.Controllers.Purchase
                         {
                             if (oldDetailPurchaseInput != null)
                             {
-                                // 발주번호 디테일의 품목 발주수량 합계
-                                var OldDetailPurchaseOrderQuantity = newObjectspace.GetObjects<DetailPurchaseOrder>()
-                                    .Where(x => x.MasterPurchaseOrderObject?.Oid == oldDetailPurchaseInput.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid &&
-                                                x.ItemObject?.Oid == oldDetailPurchaseInput.ItemObject?.Oid)
-                                    .Sum(x => x.PurchaseOrderQuantity);
-
-                                // 발주번호가 동일한 품목 입고자료 합계
-                                var OldDetailPurchaseInputQuantity = newObjectspace.GetObjects<DetailPurchaseInput>()
-                                    .Where(x => x.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid == oldDetailPurchaseInput.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid &&
-                                                x.ItemObject?.Oid == oldDetailPurchaseInput.ItemObject?.Oid)
-                                    .Sum(x => x.PurchaseInputQuantity);
-
-                                if (OldDetailPurchaseOrderQuantity < detailPurchaseInput.PurchaseInputQuantity - OldDetailPurchaseInputQuantity)
-                                {
-                                    throw new UserFriendlyException("발주 수량보다 많은 수량을 입고할 수 없습니다.");
-                                }
-
                                 if (oldDetailPurchaseInput?.LotObject?.Oid != null)
                                 {
                                     if (oldLotObject != null)
@@ -113,18 +104,12 @@ namespace PracticeMes.Win.Controllers.Purchase
                                         }
                                         else
                                         {
-                                            // 기존 Lot 수정
-                                            var detailPurchaseInputInNewSpace = newObjectspace.GetObject(detailPurchaseInput);
-
-                                            oldLotObject.UnitObject = newObjectspace.GetObject(detailPurchaseInput.UnitObject);
-                                            oldLotObject.ItemAccountObject = newObjectspace.GetObject(detailPurchaseInput.ItemObject?.ItemAccountObject);
-                                            oldLotObject.CreateQuantity = detailPurchaseInput?.PurchaseInputQuantity ?? 0.0;
-
-                                            detailPurchaseInputInNewSpace.LotObject = oldLotObject;
+                                            CheckInputQuantity(newObjectspace, detailPurchaseInput);
+                                            ModifyInspectionObject(newObjectspace, detailPurchaseInput);
+                                            ModifyLotObject(newObjectspace, detailPurchaseInput, oldLotObject);
                                         }
                                     }
                                 }
-
                             }
                         }
                     }
@@ -138,6 +123,33 @@ namespace PracticeMes.Win.Controllers.Purchase
             catch (Exception ex)
             {
                 throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        // 입고 수량 유효성 체크 함수
+        private static void CheckInputQuantity(IObjectSpace newObjectspace, DetailPurchaseInput currentObject)
+        {
+            // 구매 발주 시 적었던 발수 수량 가져오기
+            var orderQty = newObjectspace.GetObjects<DetailPurchaseOrder>()
+                .Where(x => x.MasterPurchaseOrderObject.Oid == currentObject.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid &&
+                            x.ItemObject.Oid == currentObject.ItemObject?.Oid)
+                .Sum(x => x.PurchaseOrderQuantity);
+
+            // 구매 발주의 객체 속 구매 입고된 품목의 모든 수량 가져오기
+            var inputQtySum = newObjectspace.GetObjects<DetailPurchaseInput>()
+                .Where(x => x.MasterPurchaseInputObject.MasterPurchaseOrderObject.Oid == currentObject.MasterPurchaseInputObject?.MasterPurchaseOrderObject?.Oid &&
+                            x.ItemObject.Oid == currentObject.ItemObject?.Oid)
+                .Sum(x => x.PurchaseInputQuantity);
+
+            // 현재 수정하려는 객체의 이전 입고 수량 가져오기
+
+            var preDetailPurchaseInputQty = newObjectspace.GetObjectByKey<DetailPurchaseInput>(currentObject?.Oid);
+
+            var prePurchaseInputQty = preDetailPurchaseInputQty?.PurchaseInputQuantity ?? 0;
+
+            if (inputQtySum + currentObject.PurchaseInputQuantity - prePurchaseInputQty > orderQty)
+            {
+                throw new UserFriendlyException($"발주수량({orderQty})을 초과하여 입고할 수 없습니다.");
             }
         }
 
@@ -155,11 +167,82 @@ namespace PracticeMes.Win.Controllers.Purchase
             lotObject.UnitObject = currentObject?.ItemObject?.UnitObject;
             lotObject.ItemAccountObject = currentObject?.ItemObject?.ItemAccountObject;
             lotObject.CreateQuantity = currentObject.PurchaseInputQuantity;
+            lotObject.InspectionRequestQuantity = currentObject?.InspectionExecuteType?.CodeName.Trim() == "자동검사" ? currentObject.PurchaseInputQuantity : 0;
             lotObject.LotNumber = lotType.LotTypeCode + currentObject?.ItemObject.ItemAccountObject?.ItemAccountCode + currentObject?.MasterPurchaseInputObject?.WareHouseObject?.FactoryObject?.LotCode
                 + DateTime.Now.Minute.ToString()
                 + DateTime.Now.Millisecond.ToString();
 
             currentObject.LotObject = lotObject;
+        }
+
+        private static void ModifyLotObject(IObjectSpace newObjectspace, DetailPurchaseInput currentObject, Lot oldLotObject)
+        {
+            // 기존 Lot을 newObjectspace로 가져왔기 때문에 대입하려는 객체들도 newObjectspace로 가져와야 한다.(Session일치)
+            var detailPurchaseInputInNewSpace = newObjectspace.GetObject(currentObject);
+
+            oldLotObject.UnitObject = newObjectspace.GetObject(currentObject.UnitObject);
+            oldLotObject.ItemObject = newObjectspace.GetObject(currentObject.ItemObject);
+            oldLotObject.ItemAccountObject = newObjectspace.GetObject(currentObject.ItemObject?.ItemAccountObject);
+            oldLotObject.CreateQuantity = currentObject?.PurchaseInputQuantity ?? 0.0;
+            oldLotObject.InspectiontQuantity = 0;
+            oldLotObject.DefectQuantity = 0;
+
+            if (currentObject?.InspectionExecuteType?.CodeName.Trim() == "자동검사")
+            {
+                oldLotObject.InspectionRequestQuantity = currentObject?.PurchaseInputQuantity ?? 0.0;
+                oldLotObject.DefectQuantity = 0;
+                oldLotObject.StockQuantity = 0;
+            }
+            else
+            {
+                oldLotObject.StockQuantity = currentObject?.PurchaseInputQuantity ?? 0.0;
+                oldLotObject.InspectionRequestQuantity = 0;
+            }
+
+            detailPurchaseInputInNewSpace.LotObject = oldLotObject;
+        }
+
+        // 수입 검사 객체 생성 함수
+        private void CreateInspectionObject(DetailPurchaseInput currentObject)
+        {
+            if (currentObject?.InspectionExecuteType?.CodeName.Trim() == "자동검사")
+            {
+                var newIncomingInspection = ObjectSpace.CreateObject<IncomingInspection>();
+                newIncomingInspection.DetailPurchaseInputObject = currentObject;
+                newIncomingInspection.InspectionDateTime = DateTime.Now;
+                newIncomingInspection.InspectionRequestQuantity = currentObject.PurchaseInputQuantity;
+            }
+        }
+
+        private void ModifyInspectionObject(IObjectSpace newObjectspace, DetailPurchaseInput currentObject)
+        {
+            var preInspectionObject = newObjectspace.GetObjects<IncomingInspection>()
+                .FirstOrDefault(x => x.DetailPurchaseInputObject.Oid == currentObject.Oid);
+
+            if (currentObject?.InspectionExecuteType?.CodeName.Trim() == "자동검사")
+            {
+
+                if (preInspectionObject != null)
+                {
+                    preInspectionObject.InspectionRequestQuantity = currentObject.PurchaseInputQuantity;
+                    // 수입 검사 유형별 수량 초기화
+                    preInspectionObject.DefectQuantity = 0;
+                    preInspectionObject.GoodQuantity = 0;
+                    preInspectionObject.Figure = 0;
+                    preInspectionObject.Apperance = 0;
+                }
+                else
+                {
+                    CreateInspectionObject(currentObject);
+                }
+            }
+            else
+            {
+                if (preInspectionObject != null)
+                {
+                    preInspectionObject.Delete();
+                }
+            }
         }
 
         // 시간되면 LotTracking도 이 MES에 맞춰 구현

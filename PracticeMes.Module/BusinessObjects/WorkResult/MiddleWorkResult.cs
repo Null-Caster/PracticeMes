@@ -37,19 +37,20 @@ public class MiddleWorkResult : BaseObject
         set { SetPropertyValue(nameof(DetailWorkInstructionObject), value); }
     }
 
-    // 작업 가능한 상세 작업지시 목록 반환
-    // 조건: 상태가 Proceeding이고, 마지막 공정이 아닌 항목
     [Browsable(false)]
     public List<DetailWorkInstruction> AvailableInstructionObjects
     {
         get
         {
+            // 모든 작업 지시 상세 조회
             var allInstructions = new XPCollection<DetailWorkInstruction>(this.Session).ToList();
 
+            // "진행중", 최종 공정이 아닌거 필터
             var currentInstructions = allInstructions
                 .Where(x => x.Progress?.MinorCode == "Proceeding" && x.IsFinalWorkProcess == false)
                 .ToList();
 
+            // MasterWorkInstructionObject를 키, RoutingIndex를 값으로 하여 정리 
             var minRoutingIndex = allInstructions
                 .GroupBy(x => x.MasterWorkInstructionObject)
                 .ToDictionary(
@@ -57,7 +58,8 @@ public class MiddleWorkResult : BaseObject
                     g => g.Min(x => x.RoutingIndex)
                 );
 
-            var alreadyUsedInstructionOids = new XPCollection<MiddleWorkResult>(this.Session)
+            // 이미 중간 공정 등록된 목록
+            var usedInstructions = new XPCollection<MiddleWorkResult>(this.Session)
                 .Select(x => x.DetailWorkInstructionObject.Oid)
                 .Distinct()
                 .ToList();
@@ -66,54 +68,60 @@ public class MiddleWorkResult : BaseObject
 
             foreach (var instruction in currentInstructions)
             {
-                if (alreadyUsedInstructionOids.Contains(instruction.Oid))
+                if (usedInstructions.Contains(instruction.Oid))
                     continue;
 
                 var master = instruction.MasterWorkInstructionObject;
                 if (master == null) continue;
 
+                // Dictionary에서 마스터 객체 확인하고, minRoutingIndex 값 minRouting에 저장
+                // 현재 객체(instruction)의 RoutingIndex와 비교해 가장 처음 공정인지 확인
                 bool isFirstRouting = minRoutingIndex.TryGetValue(master, out int minRouting) &&
                                       instruction.RoutingIndex == minRouting;
 
                 if (isFirstRouting)
                 {
+                    // 작업 지시에 등록된 제품의 Oid 가져오기
                     var itemOid = instruction.MasterWorkInstructionObject?
                         .MasterProductionPlanningObject?.ItemObject?.Oid;
 
                     if (itemOid == null) continue;
 
+                    // BOM에 등록된 제품 가져오기 (가장 최신)
                     var productBOM = new XPCollection<ProductBOM>(this.Session)
                         .Where(x => x.ItemObject.Oid == itemOid)
                         .OrderByDescending(x => x.BOMNumber)
                         .FirstOrDefault();
 
                     if (productBOM == null) continue;
-
-                    var requiredItemOids = productBOM.AssemblyBOMObjects
+                    
+                    // BOM 목록 아이템들 가져오기
+                    var requiredItems = productBOM.AssemblyBOMObjects
                         .Where(x => x.IsEnabled && x.ItemObject != null)
                         .Select(x => x.ItemObject.Oid)
                         .Distinct()
                         .ToList();
 
+                    // 현재 작업 지시 객체로 원자재 투입된 목록 조회
                     var inputItemOids = new XPCollection<MaterialInputResult>(this.Session)
                         .Where(x => x.DetailWorkInstructionObject.Oid == instruction.Oid)
                         .Select(x => x.ItemObject.Oid)
                         .Distinct()
                         .ToList();
 
-                    if (requiredItemOids.All(x => inputItemOids.Contains(x)))
+                    // 모든 원자재 투입이 되어있다면 목록에 추가
+                    if (requiredItems.All(x => inputItemOids.Contains(x)))
                     {
                         result.Add(instruction);
                     }
                 }
                 else
                 {
-                    // 첫 공정이 아니면 조건만 맞으면 바로 추가
+                    // 첫 공정이 아니면 바로 목록에 추가
                     result.Add(instruction);
                 }
             }
-
-            return result;  // ✅ 루프 끝난 후에 result 반환
+            return result;
         }
     }
 
@@ -230,43 +238,54 @@ public class MiddleWorkResult : BaseObject
             // 현재 사용자가 고른 공정
             int currentRoutingIndex = DetailWorkInstructionObject.RoutingIndex;
 
-            // 3. 현재 공정이 첫 번째 공정일 경우 → 원자재 투입 확인 및 기준 계산
+            // 현재 공정이 첫 번째 공정일 경우 → 원자재 투입 확인 및 BOM 수량 계산
             if (currentRoutingIndex == minRoutingIndex)
             {
                 var item = master?.MasterProductionPlanningObject?.ItemObject;
                 if (item == null) return 0;
 
-                var bom = new XPCollection<ProductBOM>(Session)
+                // 최신 BOM 가져오기
+                var productBOM = new XPCollection<ProductBOM>(Session)
                     .Where(x => x.ItemObject.Oid == item.Oid)
                     .OrderByDescending(x => x.BOMNumber)
                     .FirstOrDefault();
 
-                if (bom == null) return 0;
+                if (productBOM == null) return 0;
 
-                var requiredDict = bom.AssemblyBOMObjects
+                // 투입이 필요한 품목 목록
+                var requiredItems = productBOM.AssemblyBOMObjects
                     .Where(x => x.IsEnabled && x.ItemObject != null)
                     .GroupBy(x => x.ItemObject.Oid)
                     .ToDictionary(g => g.Key, g => g.Sum(x => x.BOMQuantity));
 
-                if (requiredDict.Count == 0)
+                if (requiredItems.Count == 0)
                     return 0;
 
-                var inputDict = new XPCollection<MaterialInputResult>(Session)
-                    .Where(x => x.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid)
-                    .GroupBy(x => x.ItemObject.Oid)
-                    .ToDictionary(g => g.Key, g => g.Sum(x => x.MaterialInputQuantity));
+                //var inputItems = new XPCollection<MaterialInputResult>(Session)
+                //    .Where(x => x.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid)
+                //    .GroupBy(x => x.ItemObject.Oid)
+                //    .ToDictionary(g => g.Key, g => g.Sum(x => x.MaterialInputQuantity));
 
+                // 투입 원자재 목록 및 투입량
+                var inputItems = new XPCollection<MaterialInputResult>(Session)
+                      .Where(x => x.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid)
+                      .ToDictionary(x => x.ItemObject.Oid, x => x.MaterialInputQuantity);
+
+                // double.MaxValue은 .NET에서 표현 가능한 가장 큰 수
+                // 초기값을 제일 큰 값으로 설정하여 다음 값(BOM 수량 / 투입 수량)값을 넣을 수 있도록 조치
                 double minPossibleQuantity = double.MaxValue;
 
-                foreach (var required in requiredDict)
+                foreach (var required in requiredItems)
                 {
-                    if (!inputDict.TryGetValue(required.Key, out double actualQty))
+                    if (!inputItems.TryGetValue(required.Key, out double actualQty))
                         return 0;
 
                     if (required.Value == 0)
                         return 0;
 
+                    // 투입된 원자재 별 생산 가능 수량을 계산
                     double possible = actualQty / required.Value;
+                    // 다른 원자재의 생산 가능 수량과 비교하여 더 적은 수가 들어가도록 구현
                     minPossibleQuantity = Math.Min(minPossibleQuantity, Math.Floor(possible));
                 }
 

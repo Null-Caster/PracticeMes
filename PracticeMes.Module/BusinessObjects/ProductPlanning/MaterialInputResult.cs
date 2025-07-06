@@ -165,6 +165,7 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
 
         [VisibleInLookupListView(true)]
         [ModelDefault("DisplayFormat", "yyyy/MM/dd")]
+        [ModelDefault("DisplayFormat", "yyyy/MM/dd HH:mm:ss")]
         [XafDisplayName("투입 일시"), ToolTip("투입 일시")]
         public DateTime MaterialInputDateTime
         {

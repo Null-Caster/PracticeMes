@@ -23,7 +23,7 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning;
 
 [DefaultClassOptions]
 [NavigationItem("생산 계획 관리"), XafDisplayName("생산 계획 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class MasterProductionPlanning : BaseObject
 {
     #region Properties
@@ -41,6 +41,7 @@ public class MasterProductionPlanning : BaseObject
     [VisibleInLookupListView(true)]
     [ImmediatePostData(true)]
     [ModelDefault("LookupProperty", nameof(DetailSalesOrder.SalesOrderNumber))]
+    [DataSourceCriteria("MasterProductionPlannings.Count() = 0")]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [XafDisplayName("수주 번호"), ToolTip("수주 번호")]
     public DetailSalesOrder DetailSalesOrderObject
@@ -190,7 +191,16 @@ public class MasterProductionPlanning : BaseObject
         set { SetPropertyValue(nameof(CreatedDateTime), value); }
     }
 
-    [XafDisplayName("BOM목록")]
+    // 마감칠때 플래그
+    [Browsable(false)]
+    [NonPersistent]
+    public bool IsCompleting
+    {
+        get { return GetPropertyValue<bool>(nameof(IsCompleting)); }
+        set { SetPropertyValue(nameof(IsCompleting), value); }
+    }
+
+    [XafDisplayName("BOM 목록")]
     [Association(@"DetailProductionPlanningRefernencesMasterProductionPlanning"), DevExpress.Xpo.Aggregated]
     public XPCollection<DetailProductionPlanning> DetailProductionPlannings { get { return GetCollection<DetailProductionPlanning>(nameof(DetailProductionPlannings)); } }
     #endregion

@@ -17,7 +17,7 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo
 {
     [DefaultClassOptions]
     [NavigationItem("품목 정보"), XafDisplayName("라우팅 등록")]
-    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
     public class MasterItemTypeRouting : BaseObject
     {
         #region Properties

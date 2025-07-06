@@ -16,7 +16,7 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 
 [DefaultClassOptions]
 [NavigationItem(false)]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class UniversalMinorCode : BaseObject
 {
     #region Properties

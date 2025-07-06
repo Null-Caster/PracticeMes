@@ -26,6 +26,14 @@ public partial class MasterProductionPlanningController : ViewController
     {
         InitializeComponent();
         TargetObjectType = typeof(MasterProductionPlanning);
+
+        SimpleAction masterProductionPlanningClose = new SimpleAction(this, "MasterProductionPlanningClose", PredefinedCategory.View)
+        {
+            Caption = "생산계획 마감",
+            ImageName = "GroupByDate"
+        };
+
+        masterProductionPlanningClose.Execute += MasterProductionPlanningClose_Excuete;
     }
     protected override void OnActivated()
     {
@@ -36,6 +44,63 @@ public partial class MasterProductionPlanningController : ViewController
         ObjectSpace.Committing += ObjectSpace_Committing;
     }
 
+    private void MasterProductionPlanningClose_Excuete(object sender, SimpleActionExecuteEventArgs e)
+    {
+        try
+        {
+            MasterProductionPlanning masterProductionPlanningObject = View.CurrentObject as MasterProductionPlanning;
+
+            var masterWorkInstructions = View.ObjectSpace.GetObjects<MasterWorkInstruction>()
+                .Where(x => x.MasterProductionPlanningObject.Oid == masterProductionPlanningObject.Oid)
+                .ToList();
+
+
+            // 완료 상태 만들기(작업지시상세 완료 처리하기 위해서 변수생성)
+            var universalMajorCode = View.ObjectSpace.GetObjects<UniversalMajorCode>()
+                .Where(x => x.MajorCode == "Progress").FirstOrDefault();
+
+            var universalMinorCode = View.ObjectSpace.GetObjects<UniversalMinorCode>()
+                .Where(x => x.UniversalMajorCodeObject.Oid == universalMajorCode.Oid && x.MinorCode == "Complete")
+                .FirstOrDefault();
+
+            foreach (var masterWorkInstruction in masterWorkInstructions)
+            {
+                if (masterWorkInstruction.WorkInstructionQuantity == 0)
+                {
+                    masterWorkInstruction.Delete();
+                }
+                else
+                {
+                    masterWorkInstruction.IsComplete = true;
+                    masterWorkInstruction.flag = "진행중";
+
+                    var detailWorkInstructions = View.ObjectSpace.GetObjects<DetailWorkInstruction>()
+                        .Where(x => x.MasterWorkInstructionObject?.Oid == masterWorkInstruction.Oid).ToList();
+                    foreach (var detailWorkInstruction in detailWorkInstructions)
+                    {
+                        detailWorkInstruction.Progress = universalMinorCode;
+                    }
+                }
+            }
+            masterProductionPlanningObject.IsCompleting = true;
+            masterProductionPlanningObject.IsComplete = true;
+
+            View.ObjectSpace.CommitChanges();
+        }
+        catch (UserFriendlyException ex)
+        {
+            throw new UserFriendlyException(ex);
+        }
+        catch (Exception ex)
+        {
+            throw new UserFriendlyException(ex);
+        }
+        finally
+        {
+            View.ObjectSpace.ReloadObject(View.CurrentObject);
+        }
+    }
+
     private void ObjectSpace_Committing(object sender, CancelEventArgs e)
     {
         try
@@ -43,12 +108,21 @@ public partial class MasterProductionPlanningController : ViewController
             var modifiedObjects = View.ObjectSpace.ModifiedObjects;
             IObjectSpace newObjectSpace = Application.CreateObjectSpace(typeof(MasterProductionPlanning));
 
+            var deletedObjects = View.ObjectSpace.ModifiedObjects
+                .Cast<object>()
+                .Where(obj => View.ObjectSpace.IsDeletedObject(obj))
+                .ToList();
+
             foreach (var modifiedObject in modifiedObjects)
             {
                 if (modifiedObject is MasterProductionPlanning productionPlanning)
                 {
                     if (View.ObjectSpace.IsNewObject(productionPlanning)) // 신규
                     {
+                        // 마감 중이면 검사 생략
+                        if (productionPlanning.IsCompleting)
+                            continue;
+
                         var recentBOMObject = View.ObjectSpace.GetObjects<ProductBOM>()
                           .Where(x => x.ItemObject.Oid == productionPlanning?.ItemObject?.Oid)
                           .ToList()
@@ -66,11 +140,13 @@ public partial class MasterProductionPlanningController : ViewController
                     }
                     else if (View.ObjectSpace.IsDeletedObject(productionPlanning)) // 삭제
                     {
-                        CheckIfObjectIsInUse(newObjectSpace, productionPlanning, "삭제");
+                        if (!productionPlanning.IsCompleting)
+                            CheckIfObjectIsInUse(newObjectSpace, productionPlanning, "삭제");
                     }
                     else // 수정
                     {
-                        CheckIfObjectIsInUse(newObjectSpace, productionPlanning, "수정");
+                        if (!productionPlanning.IsCompleting)
+                            CheckIfObjectIsInUse(newObjectSpace, productionPlanning, "수정");
                     }
                 }
             }

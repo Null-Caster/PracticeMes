@@ -27,6 +27,7 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult
         #region Properties
         [ImmediatePostData(true)]
         [VisibleInLookupListView(true)]
+        [DataSourceProperty(nameof(AvailablePlannings))]
         [ModelDefault("LookupProperty", nameof(MasterProductionPlanning.ProductionPlanningNumber))]
         [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
         [RuleRequiredField(CustomMessageTemplate = "생산 계획 번호를 선택하세요.")]
@@ -35,6 +36,32 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult
         {
             get => GetPropertyValue<MasterProductionPlanning>(nameof(MasterProductionPlanningObject));
             set => SetPropertyValue(nameof(MasterProductionPlanningObject), value);
+        }
+
+        [Browsable(false)]
+        public List<MasterProductionPlanning> AvailablePlannings
+        {
+            get
+            {
+                // 최종 공정이 등록된 작업지시들의 Oid 리스트
+                var usedInstructionOids = new XPCollection<FinalWorkResult>(Session)
+                    .Where(x => x.DetailWorkInstructionObject != null)
+                    .Select(x => x.DetailWorkInstructionObject.Oid)
+                    .Distinct()
+                    .ToList();
+
+                // 제외할 생산계획 Oid 목록 (최종공정 등록된 작업지시가 포함된 계획)
+                var excludedPlanningOids = new XPCollection<DetailWorkInstruction>(Session)
+                    .Where(x => usedInstructionOids.Contains(x.Oid))
+                    .Select(x => x.MasterWorkInstructionObject.MasterProductionPlanningObject.Oid)
+                    .Distinct()
+                    .ToList();
+
+                // 전체 생산계획 중에서 제외 목록에 없는 것만 필터링
+                return new XPCollection<MasterProductionPlanning>(Session)
+                    .Where(p => !excludedPlanningOids.Contains(p.Oid))
+                    .ToList();
+            }
         }
 
         [ImmediatePostData(true)]
@@ -106,11 +133,28 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult
         {
             get
             {
-                var tests = new XPCollection<MiddleWorkResult>(this.Session)
-                    .Where(x => x.DetailWorkInstructionObject?.Oid == DetailWorkInstructionObject?.Oid)
+                if (DetailWorkInstructionObject == null || Session == null || IsDeleted)
+                    return 0;
+
+                //// 중간 공정 실적 찾기
+                var middleResult = new XPCollection<MiddleWorkResult>(this.Session)
+                    .Where(x => x.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid)
                     .SingleOrDefault();
 
-                return tests?.GoodQuantity?? 0;
+                //double goodQty = middleResult?.GoodQuantity ?? 0;
+
+                //// 현재 작업 지시에 대해 등록된 모든 불량 수량 합산
+                //double defectQty = new XPCollection<DetailWorkProcessDefect>(this.Session)
+                //    .Where(x =>
+                //        x.MasterWorkProcessDefectObject != null &&
+                //        x.MasterWorkProcessDefectObject.DetailWorkInstructionObject != null &&
+                //        x.MasterWorkProcessDefectObject.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid
+                //    )
+                //    .Sum(x => x.DefectQuantity);
+
+                //return goodQty - defectQty;
+
+                return middleResult?.GoodQuantity ?? 0;
             }
         }
 

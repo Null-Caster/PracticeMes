@@ -17,7 +17,7 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.ProductionInfo;
 
 [DefaultClassOptions]
 [NavigationItem("생산 정보"), XafDisplayName("작업장 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class WorkCenter : BaseObject
 {
     #region Properties

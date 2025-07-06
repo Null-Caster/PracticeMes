@@ -17,7 +17,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
 {
     [XafDisplayName("Lot 정보")]
     [DefaultClassOptions]
-    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.Top)]
+    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
     public class DetailSalesShipmentLot : BaseObject
     {
 

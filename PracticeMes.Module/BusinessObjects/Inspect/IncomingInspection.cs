@@ -19,7 +19,7 @@ namespace PracticeMes.Module.BusinessObjects.Inspect
 {
     [NavigationItem("품질 관리"), XafDisplayName("수입검사등록")]
     [DefaultClassOptions]
-    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.Top)]
+    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
     [Persistent(nameof(IncomingInspection))]
     [RuleCriteria(
         "SumMatchesDefectQuantity",

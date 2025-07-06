@@ -18,7 +18,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales;
 
 [DefaultClassOptions]
 [NavigationItem("영업 관리"), XafDisplayName("수주 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class MasterSalesOrder : BaseObject
 {
     #region Properties

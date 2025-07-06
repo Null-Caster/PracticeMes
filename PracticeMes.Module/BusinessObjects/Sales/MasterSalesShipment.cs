@@ -17,7 +17,7 @@ namespace PracticeMes.Module.BusinessObjects.Sales
 {
     [DefaultClassOptions]
     [NavigationItem("영업 관리"), XafDisplayName("출하 등록")]
-    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
     public class MasterSalesShipment : BaseObject
     {
 
@@ -35,14 +35,30 @@ namespace PracticeMes.Module.BusinessObjects.Sales
         }
 
         [ModelDefault("LookupProperty", nameof(DetailSalesOrder.SalesOrderNumber))]
+        [DataSourceProperty(nameof(AvailableSalesOrders))]
         [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
-        [RuleRequiredField(CustomMessageTemplate = "수주 번호를 입력하세요.")]
         [XafDisplayName("수주 번호"), ToolTip("수주 번호")]
         [ImmediatePostData(true)]
         public DetailSalesOrder DetailSalesOrderObject
         {
             get { return GetPropertyValue<DetailSalesOrder>(nameof(DetailSalesOrderObject)); }
             set { SetPropertyValue(nameof(DetailSalesOrderObject), value); }
+        }
+
+        [Browsable(false)]
+        public List<DetailSalesOrder> AvailableSalesOrders
+        {
+            get
+            {
+                var usedOrderOids = new XPCollection<MasterSalesShipment>(Session)
+                    .Where(x => x.DetailSalesOrderObject != null)
+                    .Select(x => x.DetailSalesOrderObject.Oid)
+                    .ToList();
+
+                return new XPCollection<DetailSalesOrder>(Session)
+                    .Where(x => !usedOrderOids.Contains(x.Oid))
+                    .ToList();
+            }
         }
 
         [VisibleInLookupListView(true)]

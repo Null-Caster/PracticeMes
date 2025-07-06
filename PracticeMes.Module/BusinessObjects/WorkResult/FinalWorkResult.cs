@@ -19,7 +19,7 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult;
 
 [DefaultClassOptions]
 [NavigationItem("공정 관리"), XafDisplayName("최종 공정 실적 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class FinalWorkResult : BaseObject
 {
     #region Properties

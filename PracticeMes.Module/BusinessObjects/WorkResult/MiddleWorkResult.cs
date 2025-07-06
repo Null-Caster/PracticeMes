@@ -216,105 +216,9 @@ public class MiddleWorkResult : BaseObject
         set { SetPropertyValue(nameof(GoodQuantity), value); }
     }
 
-    //[VisibleInLookupListView(true)]
-    //[ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.###")]
-    //[XafDisplayName("생산 가능 수량"), ToolTip("투입 자재 또는 앞 공정 기준으로 생산 가능한 수량")]
-    //public double AvailableGoodQuantity
-    //{
-    //    get
-    //    {
-    //        if (DetailWorkInstructionObject == null) return 0;
-
-    //        // 작업 지시 가져오기
-    //        var master = DetailWorkInstructionObject.MasterWorkInstructionObject;
-    //        if (master == null)  return 0;
-
-    //        // 작업지시 내 모든 상세 목록 조회
-    //        var allInstructions = new XPCollection<DetailWorkInstruction>(Session)
-    //            .Where(x => x.MasterWorkInstructionObject == master)
-    //            .ToList();
-
-    //        // 가장 빠른 공정(RoutingIndex) 구하기, 원재료 투입 공정
-    //        int minRoutingIndex = allInstructions.Min(x => x.RoutingIndex);
-    //        // 현재 사용자가 고른 공정
-    //        int currentRoutingIndex = DetailWorkInstructionObject.RoutingIndex;
-
-    //        // 현재 공정이 첫 번째 공정일 경우 → 원자재 투입 확인 및 BOM 수량 계산
-    //        if (currentRoutingIndex == minRoutingIndex)
-    //        {
-    //            var item = master?.MasterProductionPlanningObject?.ItemObject;
-    //            if (item == null) return 0;
-
-    //            // 최신 BOM 가져오기
-    //            var productBOM = new XPCollection<ProductBOM>(Session)
-    //                .Where(x => x.ItemObject.Oid == item.Oid)
-    //                .OrderByDescending(x => x.BOMNumber)
-    //                .FirstOrDefault();
-
-    //            if (productBOM == null) return 0;
-
-    //            // 투입이 필요한 품목 목록
-    //            var requiredItems = productBOM.AssemblyBOMObjects
-    //                .Where(x => x.IsEnabled && x.ItemObject != null)
-    //                .GroupBy(x => x.ItemObject.Oid)
-    //                .ToDictionary(g => g.Key, g => g.Sum(x => x.BOMQuantity));
-
-    //            if (requiredItems.Count == 0)
-    //                return 0;
-
-    //            //var inputItems = new XPCollection<MaterialInputResult>(Session)
-    //            //    .Where(x => x.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid)
-    //            //    .GroupBy(x => x.ItemObject.Oid)
-    //            //    .ToDictionary(g => g.Key, g => g.Sum(x => x.MaterialInputQuantity));
-
-    //            // 투입 원자재 목록 및 투입량
-    //            var inputItems = new XPCollection<MaterialInputResult>(Session)
-    //                  .Where(x => x.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid)
-    //                  .ToDictionary(x => x.ItemObject.Oid, x => x.MaterialInputQuantity);
-
-    //            // double.MaxValue은 .NET에서 표현 가능한 가장 큰 수
-    //            // 초기값을 제일 큰 값으로 설정하여 다음 값(BOM 수량 / 투입 수량)값을 넣을 수 있도록 조치
-    //            double minPossibleQuantity = double.MaxValue;
-
-    //            foreach (var required in requiredItems)
-    //            {
-    //                if (!inputItems.TryGetValue(required.Key, out double actualQty))
-    //                    return 0;
-
-    //                if (required.Value == 0)
-    //                    return 0;
-
-    //                // 투입된 원자재 별 생산 가능 수량을 계산
-    //                double possible = actualQty / required.Value;
-    //                // 다른 원자재의 생산 가능 수량과 비교하여 더 적은 수가 들어가도록 구현
-    //                minPossibleQuantity = Math.Min(minPossibleQuantity, Math.Floor(possible));
-    //            }
-
-    //            return minPossibleQuantity == double.MaxValue ? 0 : minPossibleQuantity;
-    //        }
-    //        else
-    //        {
-    //            // 이전 공정의 생산 수량을 기준으로 생산 가능 수량 파악
-    //            int prevRoutingIndex = currentRoutingIndex - 1;
-
-    //            var prevInstruction = allInstructions
-    //                .FirstOrDefault(x => x.RoutingIndex == prevRoutingIndex);
-
-    //            if (prevInstruction == null) return 0;
-
-    //            var prevWorkResult = new XPCollection<MiddleWorkResult>(Session)
-    //                .Where(x => x.DetailWorkInstructionObject.Oid == prevInstruction.Oid)
-    //                .OrderByDescending(x => x.WorkResultDateTime)
-    //                .FirstOrDefault();
-
-    //            return prevWorkResult?.GoodQuantity ?? 0;
-    //        }
-    //    }
-    //}
-
     [VisibleInLookupListView(true)]
     [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.###")]
-    [XafDisplayName("생산 가능 수량"), ToolTip("투입 자재 또는 앞 공정 기준으로 생산 가능한 수량")]
+    [XafDisplayName("생산 가능 수량"), ToolTip("공정별 불량 차감 방식으로 계산된 생산 가능 수량")]
     public double AvailableGoodQuantity
     {
         get
@@ -333,21 +237,34 @@ public class MiddleWorkResult : BaseObject
             int minRoutingIndex = allInstructions.Min(x => x.RoutingIndex);
             int currentRoutingIndex = DetailWorkInstructionObject.RoutingIndex;
 
-            // 불량 수량 계산 함수
-            double GetDefectQuantity(DetailWorkInstruction instruction)
+            // 불량 수량 계산 함수: 해당 지시에 등록된 모든 공정의 불량
+            double GetTotalDefectQuantityForThisInstruction()
             {
                 return new XPCollection<DetailWorkProcessDefect>(Session)
                     .Where(x =>
                         x.MasterWorkProcessDefectObject != null &&
                         x.MasterWorkProcessDefectObject.DetailWorkInstructionObject != null &&
-                        x.MasterWorkProcessDefectObject.DetailWorkInstructionObject.Oid == instruction.Oid)
+                        x.MasterWorkProcessDefectObject.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid)
                     .Select(x => (double?)x.DefectQuantity)
-                    .Sum() ?? 0; // null이면 0 반환
+                    .Sum() ?? 0;
+            }
+
+            // 불량 수량 계산 함수: 현재 공정에서 발생한 불량만
+            double GetDefectQuantityForCurrentProcess()
+            {
+                return new XPCollection<DetailWorkProcessDefect>(Session)
+                    .Where(x =>
+                        x.MasterWorkProcessDefectObject != null &&
+                        x.MasterWorkProcessDefectObject.DetailWorkInstructionObject != null &&
+                        x.MasterWorkProcessDefectObject.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid &&
+                        x.MasterWorkProcessDefectObject.DetailWorkInstructionObject.RoutingIndex == currentRoutingIndex)
+                    .Select(x => (double?)x.DefectQuantity)
+                    .Sum() ?? 0;
             }
 
             if (currentRoutingIndex == minRoutingIndex)
             {
-                // 첫 공정일 경우 (원자재 투입 기준)
+                // 첫 공정 → BOM 기준 생산 가능 수량 계산
                 var item = master?.MasterProductionPlanningObject?.ItemObject;
                 if (item == null)
                     return 0;
@@ -386,14 +303,13 @@ public class MiddleWorkResult : BaseObject
                     minPossibleQuantity = Math.Min(minPossibleQuantity, Math.Floor(possible));
                 }
 
-                // 불량 수량 차감
-                double defectQuantity = GetDefectQuantity(DetailWorkInstructionObject);
+                double totalDefectQty = GetTotalDefectQuantityForThisInstruction();
 
-                return Math.Max(0, (minPossibleQuantity == double.MaxValue ? 0 : minPossibleQuantity) - defectQuantity);
+                return Math.Max(0, (minPossibleQuantity == double.MaxValue ? 0 : minPossibleQuantity) - totalDefectQty);
             }
             else
             {
-                // 중간 공정 이후: 이전 공정 GoodQuantity - 불량 수량
+                // 중간/후속 공정: 이전 공정의 생산 가능 수량에서 이번 공정의 불량만 차감
                 int prevRoutingIndex = currentRoutingIndex - 1;
 
                 var prevInstruction = allInstructions
@@ -410,10 +326,10 @@ public class MiddleWorkResult : BaseObject
                 if (prevWorkResult == null)
                     return 0;
 
-                double prevGoodQuantity = prevWorkResult.GoodQuantity;
-                double defectQuantity = GetDefectQuantity(prevInstruction);
+                double prevAvailable = prevWorkResult.AvailableGoodQuantity; // 💥 주의: GoodQuantity 아님
+                double currentDefectQty = GetDefectQuantityForCurrentProcess();
 
-                return Math.Max(0, prevGoodQuantity - defectQuantity);
+                return Math.Max(0, prevAvailable - currentDefectQty);
             }
         }
     }

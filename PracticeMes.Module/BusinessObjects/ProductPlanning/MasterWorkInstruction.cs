@@ -20,7 +20,7 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
 {
     [DefaultClassOptions]
     [NavigationItem("생산 계획 관리"), XafDisplayName("작업 지시 등록")]
-    [DefaultListViewOptions(MasterDetailMode.ListViewAndDetailView, true, NewItemRowPosition.Top)]
+    [DefaultListViewOptions(MasterDetailMode.ListViewAndDetailView, true, NewItemRowPosition.None)]
     public class MasterWorkInstruction : BaseObject
     {
         #region Properties
@@ -28,12 +28,26 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         [VisibleInLookupListView(true)]
         [ModelDefault("LookupProperty", nameof(MasterProductionPlanning.ProductionPlanningNumber))]
         [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+        [DataSourceProperty(nameof(AvailableMasterProductionPlannings))]
         [RuleRequiredField(CustomMessageTemplate = "생산 계획 번호를 입력하세요.")]
         [XafDisplayName("생산 계획 번호"), ToolTip("생산 계획 번호")]
         public MasterProductionPlanning MasterProductionPlanningObject
         {
             get { return GetPropertyValue<MasterProductionPlanning>(nameof(MasterProductionPlanningObject)); }
             set { SetPropertyValue(nameof(MasterProductionPlanningObject), value); }
+        }
+
+        [Browsable(false)]
+        public List<MasterProductionPlanning> AvailableMasterProductionPlannings
+        {
+            get
+            {
+                return new XPCollection<MasterProductionPlanning>(Session)
+                    .Where(x => !x.IsComplete &&
+                                !Session.Query<MasterWorkInstruction>()
+                                        .Any(w => w.MasterProductionPlanningObject.Oid == x.Oid))
+                    .ToList();
+            }
         }
 
         [VisibleInLookupListView(true)]
@@ -147,6 +161,11 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
 
         #region Constructors
         public MasterWorkInstruction(Session session) : base(session) { }
+        #endregion
+
+        #region Fields
+        [Browsable(false)]
+        public string flag;
         #endregion
 
         #region Methods

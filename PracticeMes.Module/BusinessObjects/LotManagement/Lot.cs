@@ -19,7 +19,7 @@ namespace PracticeMes.Module.BusinessObjects.LotManagement;
 
 [DefaultClassOptions]
 [NavigationItem("Lot 관리"), XafDisplayName("Lot 조회")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
 public class Lot : BaseObject
 {
 

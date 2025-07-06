@@ -74,9 +74,13 @@ namespace PracticeMes.Win.Controllers.WorkResult
             // 해당 중간 공정에 대한 불량 공정이 등록되어 있을 경우 읽기 전용으로 변경
             if (View is DetailView detailView && detailView.CurrentObject is MiddleWorkResult currentResult)
             {
+                if (currentResult.DetailWorkInstructionObject == null)
+                    return; // 아직 DetailWorkInstruction을 선택 안 한 상태 → 그냥 빠져나감
+
                 var os = View.ObjectSpace;
                 var hasDefect = os.GetObjects<MasterWorkProcessDefect>()
-                    .Any(x => x.DetailWorkInstructionObject.Oid == currentResult.DetailWorkInstructionObject.Oid);
+                    .Any(x => x.DetailWorkInstructionObject != null &&
+                              x.DetailWorkInstructionObject.Oid == currentResult.DetailWorkInstructionObject.Oid);
 
                 if (hasDefect)
                 {

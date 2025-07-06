@@ -17,7 +17,7 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.ItemInfo
 {
     [DefaultClassOptions]
     [NavigationItem("품목 정보"), XafDisplayName("품목 그룹 등록")]
-    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+    [DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
     public class ItemGroup : BaseObject
     {
         #region Properties

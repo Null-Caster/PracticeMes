@@ -16,7 +16,7 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.QualityInfo;
 
 [DefaultClassOptions]
 [NavigationItem("품질 정보"), XafDisplayName("불량 유형 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class DefectType : BaseObject
 {
     #region Properties

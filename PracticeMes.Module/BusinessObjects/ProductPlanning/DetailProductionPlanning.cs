@@ -105,6 +105,10 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         }
 
         [VisibleInLookupListView(true)]
+        [Appearance("OverageQuantityWarning",
+            Criteria = "OverageQuantity > 0",
+            TargetItems = nameof(OverageQuantity),
+            BackColor = "255, 230, 230")]
         [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.0")]
         [ModelDefault("AllowEdit", "false")]
         [XafDisplayName("과부족수량"), ToolTip("과부족수량")]

@@ -19,7 +19,7 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult;
 [DefaultClassOptions]
 [NavigationItem(false)]
 [XafDisplayName("공정 불량 상세 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
 public class DetailWorkProcessDefect : BaseObject
 {
     #region Properties

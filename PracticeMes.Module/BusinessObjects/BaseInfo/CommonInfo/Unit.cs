@@ -16,7 +16,7 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfol;
 
 [DefaultClassOptions]
 [NavigationItem("공통 정보"), XafDisplayName("단위 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class Unit : BaseObject
 {
     #region Properties

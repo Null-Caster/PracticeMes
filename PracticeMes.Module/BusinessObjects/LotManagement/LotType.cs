@@ -16,7 +16,7 @@ namespace PracticeMes.Module.BusinessObjects.LotManagement;
 
 [DefaultClassOptions]
 [NavigationItem("Lot 관리"), XafDisplayName("Lot 유형 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class LotType : BaseObject
 {
     #region Properties

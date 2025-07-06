@@ -16,7 +16,7 @@ namespace PracticeMes.Module.BusinessObjects.BaseInfo.CommonInfo;
 
 [DefaultClassOptions]
 [NavigationItem("공통 정보"), XafDisplayName("창고 등록")]
-[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.Top)]
+[DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
 public class WareHouse : BaseObject
 {
 

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <NavigationItems Id="NavigationItems">
+    <Items Id="Items">
+      <Item Id="생산 계획 관리">
+        <Items Id="Items">
+          <Item Id="MaterialInputResult_ListView" Removed="True" />
+        </Items>
+      </Item>
+      <Item Id="공정 관리">
+        <Items Id="Items">
+          <Item Id="MasterWorkProcessDefect_ListView" Visible="False" />
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
+</Application>

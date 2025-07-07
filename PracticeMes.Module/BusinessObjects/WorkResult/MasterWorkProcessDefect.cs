@@ -85,23 +85,12 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult
                 if (MasterProductionPlanningObject == null)
                     return new List<DetailWorkInstruction>();
 
-                // 모든 작업 지시 상세 조회
+                // 전체 작업 지시 불러오기
                 var allInstructions = new XPCollection<DetailWorkInstruction>(this.Session)
                     .Where(x => x.MasterWorkInstructionObject.MasterProductionPlanningObject.Oid == MasterProductionPlanningObject.Oid)
                     .ToList();
 
-                //var alreadyUsed = new XPCollection<MasterWorkProcessDefect>(this.Session)
-                //    .Select(x => x.DetailWorkInstructionObject?.Oid)
-                //    .Distinct()
-                //    .ToList();
-
-                //var currentInstructions = allInstructions
-                //    .Where(x => x.Progress?.MinorCode == "Proceeding"
-                //                && x.IsFinalWorkProcess == false
-                //                && !alreadyUsed.Contains(x.Oid))
-                //    .ToList();
-
-                // "진행중", 최종 공정이 아닌거 필터
+                // 진행중 & 최종공정 아님
                 var currentInstructions = allInstructions
                     .Where(x => x.Progress?.MinorCode == "Proceeding" && x.IsFinalWorkProcess == false)
                     .ToList();
@@ -109,13 +98,19 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult
                 if (!currentInstructions.Any())
                     return new List<DetailWorkInstruction>();
 
-                int maxRoutingIndex = currentInstructions.Max(x => x.RoutingIndex);
-
-                var result = currentInstructions
-                    .Where(x => x.RoutingIndex == maxRoutingIndex)
+                // 중간 공정 실적이 등록된 DetailWorkInstruction Oid 목록
+                var usedInstructionOids = new XPCollection<MiddleWorkResult>(this.Session)
+                    .Where(x => x.DetailWorkInstructionObject != null)
+                    .Select(x => x.DetailWorkInstructionObject.Oid)
+                    .Distinct()
                     .ToList();
 
-                return result;
+                // 최종 필터: 중간 공정 실적이 존재하는 것만
+                var filtered = currentInstructions
+                    .Where(x => usedInstructionOids.Contains(x.Oid))
+                    .ToList();
+
+                return filtered;
             }
         }
 
@@ -136,10 +131,10 @@ namespace PracticeMes.Module.BusinessObjects.WorkResult
                 if (DetailWorkInstructionObject == null || Session == null || IsDeleted)
                     return 0;
 
-                //// 중간 공정 실적 찾기
+                // 중간 공정 실적 찾기
                 var middleResult = new XPCollection<MiddleWorkResult>(this.Session)
                     .Where(x => x.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid)
-                    .SingleOrDefault();
+                    .FirstOrDefault();
 
                 //double goodQty = middleResult?.GoodQuantity ?? 0;
 

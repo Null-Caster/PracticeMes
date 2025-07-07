@@ -42,32 +42,47 @@
       </Item>
       <Item Id="구매 관리" ImageName="BO_Folder" Index="1">
         <Items>
-          <Item Id="MasterPurchaseInput_ListView" ImageName="Business_Idea" />
-          <Item Id="MasterPurchaseOrder_ListView" ImageName="Business_Idea" />
+          <Item Id="MasterPurchaseOrder_ListView" ImageName="Business_Idea" Index="0" />
+          <Item Id="MasterPurchaseInput_ListView" ImageName="Business_Idea" Index="1" />
+          <Item Id="PurchaseReturn_ListView" ImageName="Reset" />
         </Items>
       </Item>
       <Item Id="공통 정보" Visible="False" Index="2" />
       <Item Id="영업 관리" Index="3">
         <Items>
           <Item Id="MasterSalesOrder_ListView" ImageName="BO_Sale_Item" />
+          <Item Id="MasterSalesShipment_ListView" ImageName="BO_Sale_Item" />
         </Items>
       </Item>
       <Item Id="생산 계획 관리" Index="4">
         <Items>
-          <Item Id="원자재 투입 등록" Caption="원자재 투입 등록" ViewId="MaterialInputResult_ListView" ImageName="ProductOrderDetail-21" IsNewNode="True" />
-          <Item Id="MasterWorkInstruction_ListView" ImageName="TableProperties" />
-          <Item Id="MaterialInputResult_ListView" Removed="True" />
+          <Item Id="MasterProductionPlanning_ListView" Index="0" />
+          <Item Id="MasterWorkInstruction_ListView" ImageName="TableProperties" Index="1" />
+          <Item Id="원자재 투입 등록" Caption="원자재 투입 등록" ImageName="ProductOrderDetail-21" ViewId="MaterialInputResult_ListView" IsNewNode="True" />
         </Items>
       </Item>
       <Item Id="공정 관리" Index="5">
         <Items>
+          <Item Id="MiddleWorkResult_ListView" Index="0" ImageName="FollowUpAll" />
+          <Item Id="FinalWorkResult_ListView" Index="1" ImageName="FollowUp" />
           <Item Id="DetailWorkInstruction_ListView" Visible="False" />
-          <Item Id="MasterWorkProcessDefect_ListView" Visible="False" />
         </Items>
       </Item>
       <Item Id="생산 정보" Visible="False" />
-      <Item Id="품목 정보" Visible="False" />
-      <Item Id="품질 정보" Visible="False" />
+      <Item Id="품목 정보" Visible="False">
+        <Items>
+          <Item Id="Item_ListView" ImageName="Actions_Rating" />
+          <Item Id="ItemAccount_ListView" ImageName="Action_ModelDifferences_Create" />
+          <Item Id="ItemGroup_ListView" ImageName="Action_ModelDifferences_Create" />
+          <Item Id="MasterItemTypeRouting_ListView" ImageName="ListNumbers" />
+        </Items>
+      </Item>
+      <Item Id="품질 정보" Visible="False">
+        <Items>
+          <Item Id="DefectCause_ListView" ImageName="Security_WarningCircled1" />
+          <Item Id="DefectType_ListView" ImageName="Security_WarningCircled2" />
+        </Items>
+      </Item>
       <Item Id="Default" Visible="False" />
       <Item Id="KPI" Visible="False" />
       <Item Id="Reports" Visible="False" />
@@ -76,11 +91,11 @@
   </NavigationItems>
   <Options UIType="TabbedMDI" FormStyle="Ribbon" />
   <SchemaModules>
-    <SchemaModule Name="CloneObjectModule" Version="23.1.15.0" IsNewNode="True" />
-    <SchemaModule Name="SchedulerModuleBase" Version="23.1.15.0" IsNewNode="True" />
-    <SchemaModule Name="SchedulerWindowsFormsModule" Version="23.1.15.0" IsNewNode="True" />
-    <SchemaModule Name="SystemModule" Version="23.1.15.0" IsNewNode="True" />
-    <SchemaModule Name="SystemWindowsFormsModule" Version="23.1.15.0" IsNewNode="True" />
+    <SchemaModule Name="CloneObjectModule" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerModuleBase" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerWindowsFormsModule" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SystemModule" Version="23.1.9.0" IsNewNode="True" />
+    <SchemaModule Name="SystemWindowsFormsModule" Version="23.1.9.0" IsNewNode="True" />
   </SchemaModules>
   <Views>
     <DetailView Id="AssemblyBOM_DetailView">

@@ -94,7 +94,7 @@ public class MiddleWorkResult : BaseObject
                         .FirstOrDefault();
 
                     if (productBOM == null) continue;
-                    
+
                     // BOM 목록 아이템들 가져오기
                     var requiredItems = productBOM.AssemblyBOMObjects
                         .Where(x => x.IsEnabled && x.ItemObject != null)
@@ -204,7 +204,7 @@ public class MiddleWorkResult : BaseObject
     }
 
     [Browsable(false)]
-    [RuleFromBoolProperty("ValidateGoodQuantityLimit", DefaultContexts.Save,"생산 수량은 생산 가능 수량을 초과할 수 없습니다.")]
+    [RuleFromBoolProperty("ValidateGoodQuantityLimit", DefaultContexts.Save, "생산 수량은 생산 가능 수량을 초과할 수 없습니다.")]
     public bool IsGoodQuantityValid => GoodQuantity <= AvailableGoodQuantity;
 
     [VisibleInLookupListView(true)]
@@ -218,7 +218,7 @@ public class MiddleWorkResult : BaseObject
 
     [VisibleInLookupListView(true)]
     [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.###")]
-    [XafDisplayName("생산 가능 수량"), ToolTip("공정별 불량 차감 방식으로 계산된 생산 가능 수량")]
+    [XafDisplayName("생산 가능 수량"), ToolTip("생산 가능 수량")]
     public double AvailableGoodQuantity
     {
         get
@@ -286,8 +286,14 @@ public class MiddleWorkResult : BaseObject
                     return 0;
 
                 var inputItems = new XPCollection<MaterialInputResult>(Session)
-                    .Where(x => x.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid)
-                    .ToDictionary(x => x.ItemObject.Oid, x => x.MaterialInputQuantity);
+                    .Where(x => x.DetailWorkInstructionObject != null &&
+                                x.DetailWorkInstructionObject.Oid == DetailWorkInstructionObject.Oid &&
+                                x.ItemObject != null)
+                    .GroupBy(x => x.ItemObject.Oid)
+                    .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(x => x.MaterialInputQuantity)
+                    );
 
                 double minPossibleQuantity = double.MaxValue;
 

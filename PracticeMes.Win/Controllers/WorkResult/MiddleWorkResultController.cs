@@ -45,24 +45,27 @@ namespace PracticeMes.Win.Controllers.WorkResult
                 {
                     if (!View.ObjectSpace.IsNewObject(middleWorkResult) && !View.ObjectSpace.IsDeletedObject(middleWorkResult))
                     {
-                        var hasDefect = newObjectSpace.GetObjects<MasterWorkProcessDefect>()
-                            .Any(x => x.DetailWorkInstructionObject.Oid == middleWorkResult.DetailWorkInstructionObject.Oid);
-
-                        if (hasDefect)
+                        if (middleWorkResult?.DetailWorkInstructionObject.Oid != null)
                         {
-                            throw new UserFriendlyException("해당 공정에 불량 정보가 등록되어 있어 수정할 수 없습니다.");
+                            var hasDefect = newObjectSpace.GetObjects<MasterWorkProcessDefect>()
+                            .Any(x => x.DetailWorkInstructionObject.Oid == middleWorkResult?.DetailWorkInstructionObject.Oid);
+
+                            if (hasDefect)
+                            {
+                                throw new UserFriendlyException("해당 공정에 불량 정보가 등록되어 있어 수정/삭제 할 수 없습니다.");
+                            }
                         }
                     }
 
                     if (View.ObjectSpace.IsNewObject(middleWorkResult))
                     {
-                        MiddleWorkResult test = middleWorkResult;
                     }
                     else if (View.ObjectSpace.IsDeletedObject(middleWorkResult))
                     {
-
                     }
-                    else { }
+                    else
+                    {
+                    }
                 }
             }
         }
@@ -77,8 +80,7 @@ namespace PracticeMes.Win.Controllers.WorkResult
                 if (currentResult.DetailWorkInstructionObject == null)
                     return; // 아직 DetailWorkInstruction을 선택 안 한 상태 → 그냥 빠져나감
 
-                var os = View.ObjectSpace;
-                var hasDefect = os.GetObjects<MasterWorkProcessDefect>()
+                var hasDefect = View.ObjectSpace.GetObjects<MasterWorkProcessDefect>()
                     .Any(x => x.DetailWorkInstructionObject != null &&
                               x.DetailWorkInstructionObject.Oid == currentResult.DetailWorkInstructionObject.Oid);
 

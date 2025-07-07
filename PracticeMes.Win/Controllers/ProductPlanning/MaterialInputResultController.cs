@@ -80,6 +80,9 @@ namespace PracticeMes.Win.Controllers.ProductPlanning
                         }
                         else
                         {
+                            if (materialInputResult?.DetailWorkInstructionObject?.Progress?.CodeName == "완료") {
+                                throw new UserFriendlyException("생산 계획이 마감되어 수정할 수 없습니다.");
+                            }
                             if (oldItemLotObject != null && preObject != null)
                             {
                                 double previousQty = preObject.MaterialInputQuantity;
@@ -98,7 +101,6 @@ namespace PracticeMes.Win.Controllers.ProductPlanning
             catch (UserFriendlyException ex)
             {
                 throw new UserFriendlyException(ex.Message);
-
             }
             catch (Exception ex)
             {

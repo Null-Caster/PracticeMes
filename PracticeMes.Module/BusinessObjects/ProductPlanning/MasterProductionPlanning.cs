@@ -41,7 +41,6 @@ public class MasterProductionPlanning : BaseObject
     [VisibleInLookupListView(true)]
     [ImmediatePostData(true)]
     [ModelDefault("LookupProperty", nameof(DetailSalesOrder.SalesOrderNumber))]
-    [DataSourceCriteria("MasterProductionPlannings.Count() = 0")]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
     [XafDisplayName("수주 번호"), ToolTip("수주 번호")]
     public DetailSalesOrder DetailSalesOrderObject

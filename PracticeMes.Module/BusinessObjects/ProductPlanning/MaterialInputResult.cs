@@ -19,11 +19,21 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
     [DefaultClassOptions]
     [NavigationItem("생산 계획 관리"), XafDisplayName("원자재 투입 등록")]
     [DefaultListViewOptions(MasterDetailMode.ListViewOnly, true, NewItemRowPosition.None)]
-    [RuleCriteria("MaterialInputQuantity_LessThanOrEqualTo_InputQuantity", DefaultContexts.Save, "MaterialInputQuantity <= InputQuantity", CustomMessageTemplate = "투입 수량은 총 원자재 총 필요 수량을 초과할 수 없습니다.")]
+    [RuleCriteria("MaterialInputQuantity_LessThanOrEqualTo_InputQuantity", DefaultContexts.Save, "MaterialInputQuantity + AlreadyInputQuantity <= InputQuantity", CustomMessageTemplate = "투입 수량은 총 원자재 총 필요 수량을 초과할 수 없습니다.")]
+    [RuleCriteria("MaterialInputQuantity_LessThanOrEqualTo_StockQuantity", DefaultContexts.Save, "MaterialInputQuantity <= StockQuantity", CustomMessageTemplate = "투입 수량은 Lot 재고 수량을 초과할 수 없습니다.")]
     public class MaterialInputResult : BaseObject
     {
         #region Properties
         [Index(0)]
+        [VisibleInLookupListView(true)]
+        [ModelDefault("AllowEdit", "False")]
+        [XafDisplayName("생산계획 번호"), ToolTip("생산계획 번호")]
+        public string ProductionPlanningNumber
+        {
+            get { return DetailWorkInstructionObject?.WorkInstructionNumber; }
+        }
+
+        [Index(1)]
         [VisibleInLookupListView(true)]
         [ImmediatePostData(true)]
         [DataSourceCriteria("Progress.MinorCode == 'Proceeding' && IsFinalWorkProcess == False && RoutingIndex == 1")]
@@ -90,7 +100,9 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
         {
             get
             {
-                double stockQuantity = new XPCollection<Lot>(this.Session).Where(x => x.ItemObject.Oid == this.LotObject?.ItemObject?.Oid).Sum(x => x.StockQuantity);
+                double stockQuantity = new XPCollection<Lot>(this.Session)
+                    .Where(x => x.ItemObject.Oid == this.LotObject?.ItemObject?.Oid)
+                    .Sum(x => x.StockQuantity);
                 return stockQuantity;
             }
         }
@@ -151,6 +163,35 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
                     .FirstOrDefault(x => x.ItemObject.Oid == inputItemOid)?.BOMQuantity ?? 0;
 
                 return workInstructionQuantity * bomQuantity;
+            }
+        }
+
+        [VisibleInLookupListView(true)]
+        [ModelDefault("EditMask", "###,###,###,###,###,###,###,###,###,##0.###")]
+        [XafDisplayName("투입된 수량"), ToolTip("투입된 수량")]
+        public double AlreadyInputQuantity
+        {
+            get
+            {
+                if (this.DetailWorkInstructionObject == null || this.DetailWorkInstructionObject.Oid == Guid.Empty)
+                    return 0;
+
+                // 투입된 품목별 투입 수량 조회
+                var allInputs = new XPCollection<MaterialInputResult>(this.Session) 
+                        .Where(x => x.DetailWorkInstructionObject != null && 
+                                    x.DetailWorkInstructionObject.Oid == this.DetailWorkInstructionObject.Oid && 
+                                    x.Oid != this.Oid)
+                        .GroupBy(x => x.ItemObject)
+                        .ToDictionary(g => g.Key, g => g.Sum(x => x.MaterialInputQuantity));
+
+                if (allInputs.Count == 0) return 0;
+
+                if (this.ItemObject != null)
+                {
+                    double alreadyInputQty = allInputs.ContainsKey(this.ItemObject) ? allInputs[this.ItemObject] : 0;
+                    return alreadyInputQty;
+                }
+                return 0;
             }
         }
 
@@ -236,20 +277,40 @@ namespace PracticeMes.Module.BusinessObjects.ProductPlanning
                     if (recentBOM == null) return null;
 
                     // 하위 원자재들 가져오기
-                    var allItems = recentBOM.AssemblyBOMObjects
+                    var BOMItems = recentBOM.AssemblyBOMObjects
                             .Where(x => x.ItemObject != null && x.IsEnabled)
                             .Select(x => x.ItemObject)
                             .Distinct()
                             .ToList();
 
-                    // 현재 작업지시에서 이미 등록된 원자재 가져오기
-                    var usedItems = new XPCollection<MaterialInputResult>(this.Session)
-                        .Where(x => x.DetailWorkInstructionObject.Oid == this.DetailWorkInstructionObject.Oid && x.Oid != this.Oid)
-                        .Select(x => x.ItemObject)
-                        .ToList();
+                    // 원자재별 투입량 합산
+                    var allInputs = new XPCollection<MaterialInputResult>(this.Session)
+                            .Where(x => x.DetailWorkInstructionObject.Oid == this.DetailWorkInstructionObject.Oid && x.Oid != this.Oid)
+                            .GroupBy(x => x.ItemObject)
+                            .ToDictionary(g => g.Key, g => g.Sum(x => x.MaterialInputQuantity));
 
-                    // 등록된 원자재 제외한 목록 반환
-                    return allItems.Except(usedItems).ToList();
+
+                    var finalList = new List<Item>();
+
+                    foreach (var bom in recentBOM.AssemblyBOMObjects)
+                    {
+                        if (!bom.IsEnabled || bom.ItemObject == null)
+                            continue;
+
+                        var item = bom.ItemObject; // 품목
+                        double bomQty = bom.BOMQuantity;// BOM 수량
+                        // 계획 수량 * BOM 수량 => 총 필요 수량
+                        double requiredQty = (DetailWorkInstructionObject?.WorkInstructionQuantity ?? 0) * bomQty;
+
+                        // 이미 투입된 수량
+                        double alreadyInputQty = allInputs.ContainsKey(item) ? allInputs[item] : 0;
+
+                        // 이미 투입된 수량이 총 필요 수량보다 적다면 추가 투입 가능
+                        if (alreadyInputQty < requiredQty)
+                            finalList.Add(item);
+                    }
+
+                    return finalList;
                 }
                 return null;
             }

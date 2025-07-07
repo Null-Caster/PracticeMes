@@ -28,6 +28,7 @@ public class DetailSalesOrder : BaseObject
     [VisibleInLookupListView(true)]
     [ModelDefault("LookupProperty", nameof(Item.ItemCode))]
     [LookupEditorMode(LookupEditorMode.AllItemsWithSearch)]
+    [DataSourceCriteria("ItemAccountObject.ItemAccountName == '제품' || ItemAccountObject.ItemAccountName == '반제품'")]
     [RuleRequiredField(CustomMessageTemplate = "품목 코드를 입력하세요.")]
     [XafDisplayName("품목 코드"), ToolTip("품목 코드")]
     public Item ItemObject
